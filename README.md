@@ -11,6 +11,8 @@ Discord × Claude Code × Notion — 매출·재고·발주·정산·회의록 �
 
 [가이드 사이트](https://select-shop-kit.vercel.app) · [설치](docs/setup.md) · [아키텍처](docs/architecture.md)
 
+<img src="assets/social-preview.png" alt="select-shop-kit" width="100%">
+
 </div>
 
 ---
