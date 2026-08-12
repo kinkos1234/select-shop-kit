@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>select-shop-kit — 편집샵 운영을 채팅 한 줄로</title>
+<meta name="description" content="Discord × Claude Code × Notion으로 패션 편집샵의 매출·재고·발주·정산·회의록을 자동화하는 오픈소스 킷.">
+<style>
+:root{
+  --ink:#0A0A0B; --bone:#F2EFE8; --orange:#FF4D00; --steel:#8A8F98; --graphite:#1C1D1F;
+  --hair:#26272B;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--bone);
+  font-family:"Pretendard Variable",Pretendard,-apple-system,"Helvetica Neue","Apple SD Gothic Neo","Segoe UI",sans-serif;
+  line-height:1.6;-webkit-font-smoothing:antialiased;word-break:keep-all}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+a{color:inherit}
+.eyebrow{font-size:13px;font-weight:600;letter-spacing:.35em;text-transform:uppercase;color:var(--steel)}
+section{padding:110px 0;border-top:1px solid var(--hair)}
+h2{font-size:clamp(30px,5vw,46px);font-weight:800;letter-spacing:-.03em;line-height:1.15;margin:14px 0 18px}
+.lead{color:var(--steel);font-size:17px;max-width:640px}
+.accent{color:var(--orange)}
+/* hero */
+header{padding:130px 0 110px}
+.logo{font-size:15px;font-weight:800;letter-spacing:.02em}
+.logo .cut{color:var(--orange)}
+h1{font-size:clamp(44px,8.5vw,96px);font-weight:800;letter-spacing:-.04em;line-height:1.02;margin:26px 0 24px}
+.hero-sub{font-size:19px;color:var(--steel);max-width:620px}
+.cta{display:flex;gap:14px;margin-top:42px;flex-wrap:wrap}
+.btn{display:inline-block;padding:14px 26px;font-size:15px;font-weight:700;text-decoration:none;border-radius:3px}
+.btn-primary{background:var(--bone);color:var(--ink)}
+.btn-ghost{border:1px solid var(--hair);color:var(--bone)}
+.btn-primary:hover{background:#fff}
+.btn-ghost:hover{border-color:var(--steel)}
+/* chat demo */
+.chat{background:var(--graphite);border:1px solid var(--hair);border-radius:8px;padding:26px;max-width:660px;margin-top:56px}
+.chat .row{display:flex;margin:12px 0}
+.chat .me{margin-left:auto;background:var(--bone);color:var(--ink);padding:10px 16px;border-radius:14px 14px 3px 14px;font-size:15px;font-weight:600;max-width:85%}
+.chat .bot{background:#131316;border:1px solid var(--hair);padding:12px 16px;border-radius:14px 14px 14px 3px;font-size:14px;color:#C9C5BC;max-width:88%;white-space:pre-line}
+.chat .bot b{color:var(--bone)}
+/* grid cards */
+.grid{display:grid;gap:1px;background:var(--hair);border:1px solid var(--hair);margin-top:50px}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.cell{background:var(--ink);padding:26px 22px}
+.cell .no{font-size:13px;font-weight:700;color:var(--orange);letter-spacing:.08em;font-variant-numeric:tabular-nums}
+.cell h3{font-size:17px;font-weight:700;margin:10px 0 8px;letter-spacing:-.01em}
+.cell p{font-size:13.5px;color:var(--steel);line-height:1.55}
+/* flow */
+.flow{display:flex;flex-direction:column;gap:14px;margin-top:50px}
+.step{display:grid;grid-template-columns:210px 1fr;gap:24px;padding:22px 0;border-bottom:1px solid var(--hair)}
+.step .in{font-weight:700;font-size:15.5px}
+.step .out{color:var(--steel);font-size:14.5px}
+.step .out b{color:var(--bone);font-weight:600}
+/* rules */
+.rules li{list-style:none;padding:16px 0;border-bottom:1px solid var(--hair);font-size:16px}
+.rules b{font-weight:700}
+.rules span{color:var(--steel);font-size:14.5px;display:block;margin-top:4px}
+/* install */
+.code{background:#111214;border:1px solid var(--hair);border-radius:6px;padding:22px 24px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;line-height:1.9;color:#C9C5BC;overflow-x:auto;margin-top:28px}
+.code .c{color:#5B5F66}
+.code .o{color:var(--orange)}
+/* limits */
+.limit{border-left:3px solid var(--orange);padding:6px 0 6px 22px;margin-top:34px;color:var(--steel);font-size:15px}
+.limit b{color:var(--bone)}
+footer{padding:70px 0 90px;border-top:1px solid var(--hair)}
+footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+footer p{color:var(--steel);font-size:13.5px}
+@media (max-width:760px){
+  .g3,.g4{grid-template-columns:1fr 1fr}
+  .step{grid-template-columns:1fr;gap:8px}
+  section{padding:80px 0}
+}
+@media (max-width:480px){ .g3,.g4{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="logo">OFF<span class="cut">C</span>UT · SELECT-SHOP-KIT</div>
+    <h1>가게 운영을,<br>채팅 한 줄로.</h1>
+    <p class="hero-sub">Discord로 "자켓 차콜 M 하나 카드로 팔림" 한 줄을 보내면 — Claude Code가 매출을 기록하고, 재고를 차감하고, 원가를 스냅샷하고, 마진을 계산해 Notion에 쌓습니다. 패션 편집샵(1~3인)을 위한 오픈소스 운영 킷.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="https://github.com/kinkos1234/select-shop-kit">GitHub에서 시작하기</a>
+      <a class="btn btn-ghost" href="#how">어떻게 동작하나</a>
+    </div>
+    <div class="chat">
+      <div class="row"><div class="me">오늘 매장에서 VA 아치로고 티 블랙M 1장 카드, 4만9천</div></div>
+      <div class="row"><div class="bot"><b>기록 완료.</b> 매출 대장 +1행 · 원가 스냅샷 26,900원 · 마진 <b>22,100원</b>
+재고 3 → 2 (재고있음) · 담당: 박매니저</div></div>
+      <div class="row"><div class="me">이번 주 매출 어때?</div></div>
+      <div class="row"><div class="bot">순매출 <b>1,705,500원</b> (반품 −109,000) · 마진 784,100원
+자사몰 30% · 베스트: 콜라보 티 13장 · <b>품절 임박 2종</b> (자켓 L, 크로스백)</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="how">
+  <div class="wrap">
+    <div class="eyebrow">Architecture</div>
+    <h2>3층이면 충분합니다</h2>
+    <p class="lead">POS도, ERP도, 서버도 없습니다. 이미 쓰는 도구 3개를 원장 규율로 묶습니다.</p>
+    <div class="grid g3">
+      <div class="cell"><div class="no">입출력</div><h3>Discord</h3><p>매장에서 폰으로 한 줄 입력. 녹음 파일, 주문 CSV도 여기로 던집니다. 직원 3인이 같은 채널을 씁니다.</p></div>
+      <div class="cell"><div class="no">실행</div><h3>Claude Code</h3><p>자연어를 파싱해 상품을 매칭하고, 검증하고, 기록합니다. 스킬 4종이 워크플로우를 강제합니다.</p></div>
+      <div class="cell"><div class="no">데이터</div><h3>Notion</h3><p>DB 13종이 단일 진실원. 사람은 대시보드·갤러리·칸반으로 봅니다. 셋업 스크립트가 전부 자동 생성.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Workflows</div>
+    <h2>실제로 이런 일이 자동화됩니다</h2>
+    <div class="flow">
+      <div class="step"><div class="in">판매 한 줄</div><div class="out">상품 매칭 → 매출 행 + <b>원가 스냅샷</b> + 재고 차감. 반품은 음수 행, 교환은 반품+판매 2행 — 과거 기록은 절대 수정하지 않습니다.</div></div>
+      <div class="step"><div class="in">회의 녹음 업로드</div><div class="out"><b>로컬 whisper</b>로 전사(녹음이 외부 서버로 안 나감) → 요약·결정사항·액션아이템 → Notion 회의록 + 일정 DB 자동 등록.</div></div>
+      <div class="step"><div class="in">자사몰 주문 CSV</div><div class="out">플랫폼 무관 컬럼 자동 인식 → 주문 헤더/라인 분리 기록. <b>멱등키</b>(파일 해시+행번호)로 같은 파일을 두 번 올려도 이중 기록 없음.</div></div>
+      <div class="step"><div class="in">발주 → 입고</div><div class="out">발주(PO)에 입고 기록이 자동 대사 — <b>미입고 잔액</b>이 실시간 계산. 해외 브랜드 부분입고 추적.</div></div>
+      <div class="step"><div class="in">"마감하자"</div><div class="out">오늘 매출 요약 + 미기록 확인 질문 + 내일 일정 브리핑. 월간 리포트는 채널·브랜드별 순매출, 드롭 sell-through, <b>부가세 예상액</b>까지.</div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Notion Structure</div>
+    <h2>DB 13종, 스크립트 하나로</h2>
+    <p class="lead">python3 setup/create_databases.py 한 번이면 relation·rollup·formula·뷰·대시보드까지 전부 생성됩니다.</p>
+    <div class="grid g4">
+      <div class="cell"><div class="no">01</div><h3>브랜드</h3><p>홀세일율·입점 상태·담당 MD</p></div>
+      <div class="cell"><div class="no">02</div><h3>스타일(드롭)</h3><p>발매일·룩북·드롭 캘린더</p></div>
+      <div class="cell"><div class="no">03</div><h3>상품(SKU)</h3><p>사이즈·컬러 단위 재고, 갤러리 뷰</p></div>
+      <div class="cell"><div class="no">04</div><h3>재고이동</h3><p>사입·폐기·실사조정 원장</p></div>
+      <div class="cell"><div class="no">05</div><h3>발주(PO)</h3><p>입고액 자동 대사·미입고 잔액</p></div>
+      <div class="cell"><div class="no">06</div><h3>매출 대장</h3><p>판매 라인, 원가 스냅샷·마진</p></div>
+      <div class="cell"><div class="no">07</div><h3>주문(자사몰)</h3><p>헤더/라인 분리, 상태 보드</p></div>
+      <div class="cell"><div class="no">08</div><h3>정산</h3><p>PG·카드 수수료, 실입금 차이</p></div>
+      <div class="cell"><div class="no">09</div><h3>고객</h3><p>VIP 등급, 누적구매 자동 집계</p></div>
+      <div class="cell"><div class="no">10</div><h3>거래처</h3><p>미지급금 자동 rollup</p></div>
+      <div class="cell"><div class="no">11</div><h3>일정</h3><p>드롭·사입·세무, 담당 배정</p></div>
+      <div class="cell"><div class="no">12</div><h3>회의록 +대시보드</h3><p>액션아이템 연결, 운영 대시보드</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Ledger Discipline</div>
+    <h2>템플릿이 아니라 <span class="accent">규율</span>입니다</h2>
+    <p class="lead">예쁜 장부는 많습니다. 이 킷의 가치는 숫자가 틀어지는 경로를 코드로 막는 데 있습니다.</p>
+    <ul class="rules" style="margin-top:34px">
+      <li><b>Append-only 원장</b><span>기존 행 수정 금지. 정정·반품·교환 전부 새 행 — 숫자의 근거가 사라지지 않습니다.</span></li>
+      <li><b>원가 스냅샷</b><span>판매 시점 사입가를 행에 복사. 다음 시즌 재사입으로 사입가가 올라도 지난달 마진이 바뀌지 않습니다.</span></li>
+      <li><b>멱등키</b><span>Discord 메시지 ID·CSV 해시가 키. 재전송·재업로드에도 이중 기록이 생기지 않습니다.</span></li>
+      <li><b>자동 대사</b><span>발주↔입고, 주문 헤더↔라인 합계, 정산 실입금↔장부 — 어긋나는 순간 formula가 드러냅니다.</span></li>
+      <li><b>재고 직접 수정 금지</b><span>실사에서 1개가 비면? 수량을 고치는 게 아니라 "실사조정 −1" 행을 남깁니다.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Get Started</div>
+    <h2>10분 설치</h2>
+    <div class="code">
+<span class="c"># 1. 클론</span>
+git clone https://github.com/kinkos1234/select-shop-kit && cd select-shop-kit
+
+<span class="c"># 2. Notion Integration 토큰 발급 (notion.so/my-integrations) 후 허브 페이지에 연결</span>
+export NOTION_TOKEN=<span class="o">ntn_xxx</span>
+
+<span class="c"># 3. DB 13종 + 뷰 + 대시보드 자동 생성</span>
+python3 setup/create_databases.py <span class="o">&lt;parent_page_id&gt;</span> --staff "대표,직원A,직원B"
+
+<span class="c"># 4. Claude Code 스킬 설치</span>
+./install.sh
+</div>
+    <div class="limit"><b>정직한 한계 —</b> Notion을 원장으로 쓰는 구조라 월 수백 건 규모까지가 적정선입니다. 월 주문 300건+, 반품 월 10건+, 월말 대사 2시간+ 이면 전용 DB 이전을 검토하세요. 판단 기준은 저장소의 architecture.md에 있습니다.</div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="logo">OFF<span class="cut">C</span>UT · SELECT-SHOP-KIT</div>
+    <p><a href="https://github.com/kinkos1234/select-shop-kit">GitHub</a> · MIT License · 같은 일 하는 분들 자유롭게 쓰세요</p>
+  </div>
+</footer>
+
+</body>
+</html>
