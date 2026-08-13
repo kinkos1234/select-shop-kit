@@ -34,7 +34,7 @@ Discord × Claude Code × Notion — 매출·재고·발주·정산·회의록 �
 | 구성 | 내용 |
 |---|---|
 | `setup/create_databases.py` | **Notion DB 13종 + 뷰 + 운영 대시보드를 한 번에 생성** — 브랜드/스타일(드롭)/상품(SKU)/재고이동/발주(PO)/매출/주문/정산/고객/거래처/일정/회의록 |
-| `skills/sales` | 자연어 판매 입력 · 입고/폐기/실사 기록 · 자사몰 주문 CSV import (멱등키로 중복 방지) |
+| `skills/sales` | 자연어 판매 입력 · 입고/폐기/실사 기록 · 자사몰 주문 CSV import (멱등키로 중복 방지) · **카페24 주문 동기화 어댑터** ([준비 가이드](docs/cafe24.md)) |
 | `skills/meeting` | 회의 녹음 → 로컬 whisper 전사 → 회의록 + 액션아이템 자동 등록 (녹음이 외부로 안 나감) |
 | `skills/shop-report` | 주간·월간 리포트 — 채널·브랜드별 순매출, 드롭 sell-through, 품절 임박, 정산 차이 알림. **`shop_brief.py` — cron 에 물리는 아침 브리핑·저녁 마감 생성기 (LLM 불필요)** |
 | `skills/closeout` | 일일 마감 루틴 — 오늘 매출 + 미기록 확인 + 내일 일정 브리핑 |

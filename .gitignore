@@ -1,7 +1,5 @@
 __pycache__/
 *.pyc
+.qa-evidence.json
 .DS_Store
-.env
-*.local.json
-node_modules/
 .vercel

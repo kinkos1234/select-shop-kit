@@ -1,0 +1,54 @@
+{
+  "_note": "합성 페이로드 — 카페24 Admin API 문서 기준 추정 형태. 실계정 실측 페이로드 확보 시 이 파일을 교체하고 map_order 매핑을 대조·확정할 것 (실측 전 파서 확정 금지).",
+  "orders": [
+    {
+      "order_id": "20260813-0000123",
+      "order_date": "2026-08-13T14:22:31+09:00",
+      "actual_order_amount": {
+        "order_price_amount": "103600.00",
+        "coupon_discount_price": "-5000.00",
+        "shipping_fee": "3000.00"
+      },
+      "items": [
+        {
+          "item_no": 1,
+          "product_name": "VA 로고 후디 블랙",
+          "option_value": "L",
+          "custom_product_code": "VA-HD-BK-L",
+          "quantity": 1,
+          "product_price": "89000.00",
+          "order_status": "N10"
+        },
+        {
+          "item_no": 2,
+          "product_name": "PC 삭스 3팩",
+          "option_value": "FREE",
+          "custom_product_code": "",
+          "quantity": 2,
+          "product_price": "7300.00",
+          "order_status": "N10"
+        }
+      ]
+    },
+    {
+      "order_id": "20260812-0000098",
+      "order_date": "2026-08-12T20:05:00+09:00",
+      "actual_order_amount": {
+        "order_price_amount": "42000.00",
+        "coupon_discount_price": "0.00",
+        "shipping_fee": "0.00"
+      },
+      "items": [
+        {
+          "item_no": 1,
+          "product_name": "GRVTY 크루넥 그레이",
+          "option_value": "M",
+          "custom_product_code": "GV-CN-GR-M",
+          "quantity": 1,
+          "product_price": "42000.00",
+          "order_status": "canceled"
+        }
+      ]
+    }
+  ]
+}
