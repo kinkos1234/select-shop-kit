@@ -23,8 +23,22 @@ description: 편집샵 주간·월간 매출 리포트. 기간 매출을 집계�
    - **담당별 처리 건수** (매출 담당 필드 기준 — 실적 평가용이 아니라 업무 분장 확인용임을 명시)
    - **정산 대사 알림**: 정산 DB에 대사상태=차이 건이 있으면 리포트 상단에 표시
    - **발주 알림**: PO 상태 발주확정/부분입고 건의 입고예정일 경과 여부
-4. 재고 경고: `find-product` 대신 상품 DB 전체 조회가 필요하면 sales-range 데이터의 상품별 판매속도 기준으로 판단하고, 현재고 확인이 필요한 상품만 `find-product` 로 개별 조회. 현재고 ≤ 1 인 판매중 상품은 "품절 임박" 목록으로.
+4. 재고 경고: `find-product` 대신 상품 DB 전체 조회가 필요하면 sales-range 데이터의 상품별 판매속도 기준으로 판단하고, 현재고 확인이 필요한 상품만 `find-product` 로 개별 조회. 품절 임박 판정은 상품 DB `재고상태` formula 가 SKU별 `재발주점`(비우면 1) 기준으로 자동 계산한다 — 직접 현재고와 비교하지 말 것.
 5. Discord 회신 형식: 숫자는 원 단위 그대로(천 단위 콤마), 표는 짧게, 핵심 관찰 1~2문장 (예: "자사몰 비중이 지난주 20%→35%로 상승"). 이전 기간과 비교하려면 그 기간도 sales-range 로 실측 — 기억으로 비교하지 않는다.
+
+## 자동 브리핑 (cron)
+
+`scripts/shop_brief.py` 가 매일 push 용 텍스트를 생성한다 (조회 전용, LLM 불필요):
+
+- `brief` — 아침: 오늘 일정 · 발주 진행(미입고 잔액+지연 D+N) · 재고 경고(품절임박/품절/음수) · 거래처 미지급 · 정산 차이 · 어제 매출
+- `closeout` — 저녁: 오늘 매출 · 음수재고 · 내일 일정 · 미기록 확인 질문
+
+cron 에 물려서 출력(stdout)을 쓰는 알림 채널(Discord/Slack 봇, 메일 등)로 보내면 된다:
+
+```
+47 8  * * *  python3 ~/.claude/skills/shop-report/scripts/shop_brief.py brief    | your-notifier
+37 21 * * *  python3 ~/.claude/skills/shop-report/scripts/shop_brief.py closeout | your-notifier
+```
 
 ## 주의
 

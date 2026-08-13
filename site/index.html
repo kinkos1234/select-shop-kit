@@ -82,7 +82,7 @@ footer p{color:var(--steel);font-size:13.5px}
   <div class="wrap">
     <div class="logo">OFF<span class="cut">C</span>UT · SELECT-SHOP-KIT</div>
     <h1>가게 운영을,<br>채팅 한 줄로.</h1>
-    <p class="hero-sub">Discord로 "자켓 차콜 M 하나 카드로 팔림" 한 줄을 보내면 — Claude Code가 매출을 기록하고, 재고를 차감하고, 원가를 스냅샷하고, 마진을 계산해 Notion에 쌓습니다. 패션 편집샵(1~3인)을 위한 오픈소스 운영 킷.</p>
+    <p class="hero-sub">Discord로 "자켓 차콜 M 하나 카드로 팔림" 한 줄을 보내면 — Claude Code가 매출을 기록하고, 재고를 차감하고, 원가를 스냅샷하고, 마진을 계산해 Notion에 쌓습니다. 사입도 같습니다: 발주를 넣어두면 미입고 잔액·거래처 미지급금이 스스로 대사되고, 아침마다 발주 지연·재발주점 도달·정산 차이가 먼저 브리핑됩니다. 패션 편집샵(1~3인)을 위한 오픈소스 운영 킷.</p>
     <div class="cta">
       <a class="btn btn-primary" href="https://github.com/kinkos1234/select-shop-kit">GitHub에서 시작하기</a>
       <a class="btn btn-ghost" href="#how">어떻게 동작하나</a>
@@ -119,7 +119,8 @@ footer p{color:var(--steel);font-size:13.5px}
       <div class="step"><div class="in">판매 한 줄</div><div class="out">상품 매칭 → 매출 행 + <b>원가 스냅샷</b> + 재고 차감. 반품은 음수 행, 교환은 반품+판매 2행 — 과거 기록은 절대 수정하지 않습니다.</div></div>
       <div class="step"><div class="in">회의 녹음 업로드</div><div class="out"><b>로컬 whisper</b>로 전사(녹음이 외부 서버로 안 나감) → 요약·결정사항·액션아이템 → Notion 회의록 + 일정 DB 자동 등록.</div></div>
       <div class="step"><div class="in">자사몰 주문 CSV</div><div class="out">플랫폼 무관 컬럼 자동 인식 → 주문 헤더/라인 분리 기록. <b>멱등키</b>(파일 해시+행번호)로 같은 파일을 두 번 올려도 이중 기록 없음.</div></div>
-      <div class="step"><div class="in">발주 → 입고</div><div class="out">발주(PO)에 입고 기록이 자동 대사 — <b>미입고 잔액</b>이 실시간 계산. 해외 브랜드 부분입고 추적.</div></div>
+      <div class="step"><div class="in">발주 → 입고</div><div class="out">발주(PO)에 입고 기록이 자동 대사 — <b>미입고 잔액</b>이 실시간 계산. 해외 브랜드 부분입고 추적. SKU별 <b>재발주점</b>을 치면 품절임박으로 자동 전환.</div></div>
+      <div class="step"><div class="in">매일 아침 (cron)</div><div class="out">사람이 묻기 전에 시스템이 먼저 push — 오늘 일정 · <b>발주 지연 D+N</b> · 품절임박 · 미지급 · 정산 차이 · 어제 매출. 저녁엔 마감 브리핑이 미기록 건을 물어봅니다.</div></div>
       <div class="step"><div class="in">"마감하자"</div><div class="out">오늘 매출 요약 + 미기록 확인 질문 + 내일 일정 브리핑. 월간 리포트는 채널·브랜드별 순매출, 드롭 sell-through, <b>부가세 예상액</b>까지.</div></div>
     </div>
   </div>
@@ -133,7 +134,7 @@ footer p{color:var(--steel);font-size:13.5px}
     <div class="grid g4">
       <div class="cell"><div class="no">01</div><h3>브랜드</h3><p>홀세일율·입점 상태·담당 MD</p></div>
       <div class="cell"><div class="no">02</div><h3>스타일(드롭)</h3><p>발매일·룩북·드롭 캘린더</p></div>
-      <div class="cell"><div class="no">03</div><h3>상품(SKU)</h3><p>사이즈·컬러 단위 재고, 갤러리 뷰</p></div>
+      <div class="cell"><div class="no">03</div><h3>상품(SKU)</h3><p>사이즈·컬러 단위 재고, 재발주점</p></div>
       <div class="cell"><div class="no">04</div><h3>재고이동</h3><p>사입·폐기·실사조정 원장</p></div>
       <div class="cell"><div class="no">05</div><h3>발주(PO)</h3><p>입고액 자동 대사·미입고 잔액</p></div>
       <div class="cell"><div class="no">06</div><h3>매출 대장</h3><p>판매 라인, 원가 스냅샷·마진</p></div>

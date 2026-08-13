@@ -139,8 +139,8 @@ def main():
     backrel('brands', 'styles', '스타일')
 
     # ── 5. 상품(SKU) ───────────────────────────────────
-    create('products', '상품·재고', 'SKU(사이즈 옵션) 단위 재고 원장. 입고수량=재고이동 합계(직접 수정 금지 — 재고이동 DB에 행 추가). 재고상태 자동 계산 / 판매상태만 직접 변경. 과거 마진은 매출 행의 원가 스냅샷 기준.', {
-        '상품명': {'title': {}}, 'SKU': txt, '바코드': txt,
+    create('products', '상품·재고', 'SKU(사이즈 옵션) 단위 재고 원장. 입고수량=재고이동 합계(직접 수정 금지 — 재고이동 DB에 행 추가). 재고상태 자동 계산(재발주점 이하 = 품절임박, 비우면 1) / 판매상태만 직접 변경. 과거 마진은 매출 행의 원가 스냅샷 기준.', {
+        '상품명': {'title': {}}, 'SKU': txt, '바코드': txt, '재발주점': num,
         '브랜드': {'select': {'options': []}},
         '카테고리': sel([('아우터', 'blue'), ('상의', 'green'), ('하의', 'yellow'), ('신발', 'orange'), ('가방', 'purple'), ('액세서리', 'pink')]),
         '시즌': {'select': {'options': []}},
@@ -211,7 +211,7 @@ def main():
     patch('products', {'입고수량': {'rollup': {'relation_property_name': '재고이동 내역', 'rollup_property_name': '수량', 'function': 'sum'}}})
     patch('products', {'판매수량': {'rollup': {'relation_property_name': '매출 내역', 'rollup_property_name': '수량', 'function': 'sum'}}})
     patch('products', {'현재고': {'formula': {'expression': 'prop("입고수량") - prop("판매수량")'}}})
-    patch('products', {'재고상태': {'formula': {'expression': 'prop("현재고") <= 0 ? "품절" : (prop("현재고") <= 1 ? "품절임박" : "재고있음")'}}})
+    patch('products', {'재고상태': {'formula': {'expression': 'prop("현재고") <= 0 ? "품절" : (prop("현재고") <= if(empty(prop("재발주점")), 1, prop("재발주점")) ? "품절임박" : "재고있음")'}}})
     patch('vendors', {'미지급금': {'rollup': {'relation_property_name': '사입 이력', 'rollup_property_name': '미지급액', 'function': 'sum'}}})
     patch('po', {'입고액': {'rollup': {'relation_property_name': '입고 내역', 'rollup_property_name': '금액', 'function': 'sum'}}})
     patch('po', {'미입고 잔액': {'formula': {'expression': 'prop("발주총액") - prop("입고액")'}}})
