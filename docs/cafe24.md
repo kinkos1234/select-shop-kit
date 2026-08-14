@@ -28,9 +28,25 @@
 ## 3. OAuth 승인 (최초 1회)
 
 ```bash
+python3 skills/sales/scripts/cafe24_sync.py setup       # 대화형 — 위 2번을 직접 편집하는 대신 이걸 써도 됩니다
 python3 skills/sales/scripts/cafe24_sync.py auth-url    # URL 출력 → 브라우저에서 승인
 python3 skills/sales/scripts/cafe24_sync.py exchange <redirect 로 받은 code>
 ```
+
+## 3-1. 몰 운영자(의뢰인) 셀프 점검 — 개발 지식 불필요
+
+연동을 맡긴 개발자가 실측 검증을 해야 할 때, 몰 운영자는 아래 네 줄이면 끝납니다:
+
+```bash
+python3 skills/sales/scripts/cafe24_sync.py setup     # 개발자센터에서 받은 키 붙여넣기
+python3 skills/sales/scripts/cafe24_sync.py auth-url  # 나온 주소를 브라우저에 → 승인
+python3 skills/sales/scripts/cafe24_sync.py exchange <주소창의 code 값>
+python3 skills/sales/scripts/cafe24_sync.py doctor    # 점검 실행
+```
+
+`doctor` 가 만든 **파일 2개(cafe24-raw-*.json, cafe24-doctor-report-*.json)를 개발자에게 보내면 됩니다.**
+고객 이름·연락처·주소 등 개인정보는 자동 마스킹되며, Notion 장부에는 아무것도 기록하지 않습니다.
+주문이 0건으로 나오면 `doctor 30` 처럼 기간을 늘려 다시 실행하세요.
 
 이후 access 토큰(2시간)은 refresh 토큰(2주)으로 자동 갱신됩니다.
 **주의: refresh 토큰은 2주 안에 한 번은 pull 이 돌아야 유지됩니다** — 크론 연결 전 수동 운용 중이면 만료될 수 있습니다.

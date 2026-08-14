@@ -7,10 +7,13 @@
   (실측 전 파서 확정 금지 — SOOP 브릿지와 같은 규율)
 
 사용:
+  cafe24_sync.py setup                             # 대화형 설정 (mall_id·앱 키 입력 → 저장)
   cafe24_sync.py auth-url                          # OAuth 승인 URL 출력
   cafe24_sync.py exchange <code>                   # 승인 코드 → 토큰 교환·저장
+  cafe24_sync.py doctor [days=7]                   # 연동 점검 — 실주문 1페이지 수집 + 매핑 리포트
+                                                   #   (개인정보 마스킹된 파일 2개 생성 → 개발자에게 전달)
   cafe24_sync.py pull [days=7]                     # 주문 조회 → 매핑 결과 dry-run 출력
-  cafe24_sync.py pull [days] --apply               # Notion 에 실기록 (멱등)
+  cafe24_sync.py pull [days] --apply               # Notion 에 실기록 (멱등, 실측 검증 후에만)
   cafe24_sync.py parse-fixture <payload.json>      # 모의 페이로드 파싱 검증 (네트워크 없음)
 
 설정: select-shop.json 의 "cafe24" 섹션
@@ -242,6 +245,96 @@ def run_capture(cmd, *args):
     return r.stdout
 
 
+def cmd_setup():
+    """대화형 설정 — 의뢰인이 개발자센터에서 받은 값을 그대로 붙여넣는다."""
+    try:
+        c = json.load(open(CONFIG_PATH))
+    except FileNotFoundError:
+        sys.exit(f'설정 파일이 없습니다: {CONFIG_PATH}\n먼저 setup/create_databases.py 로 킷을 설치해주세요.')
+    print('카페24 개발자센터(developers.cafe24.com)에서 앱을 만들고 아래 값을 입력하세요.')
+    print('권한 스코프는 mall.read_order 하나면 됩니다.\n')
+    cur = c.get('cafe24', {})
+    def ask(label, key, default=''):
+        d = cur.get(key) or default
+        v = input(f'{label}{f" [{d}]" if d else ""}: ').strip()
+        return v or d
+    cc = {
+        'mall_id': ask('몰 ID (https://<이것>.cafe24.com)', 'mall_id'),
+        'client_id': ask('클라이언트 ID', 'client_id'),
+        'client_secret': ask('클라이언트 시크릿', 'client_secret'),
+        'redirect_uri': ask('Redirect URI (개발자센터에 등록한 값)', 'redirect_uri', 'https://localhost/callback'),
+    }
+    if not all(cc.values()):
+        sys.exit('네 값 모두 필요합니다. 다시 실행해주세요.')
+    c['cafe24'] = {**cur, **cc}
+    save_cfg(c)
+    print(f'\n저장 완료 → {CONFIG_PATH}')
+    print('다음 단계: python3 cafe24_sync.py auth-url')
+
+
+MASK_KEYS = ('name', 'phone', 'cellphone', 'email', 'address', 'zipcode',
+             'member_id', 'buyer', 'receiver', 'ip', 'personal')
+
+
+def mask_pii(obj):
+    """고객 개인정보로 보이는 값을 마스킹 — 구조(키)는 보존해 매핑 검증엔 지장 없게."""
+    if isinstance(obj, dict):
+        return {k: ('◼︎masked' if any(m in k.lower() for m in MASK_KEYS) and not isinstance(v, (dict, list))
+                    else mask_pii(v)) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [mask_pii(x) for x in obj]
+    return obj
+
+
+def friendly_http(e):
+    code = getattr(e, 'code', None)
+    hints = {401: '토큰이 만료됐거나 승인이 안 됐습니다 — auth-url 부터 다시 진행해주세요.',
+             403: '앱 권한(mall.read_order)이 없습니다 — 개발자센터에서 스코프를 확인해주세요.',
+             404: '몰 ID 가 틀렸을 수 있습니다 — setup 으로 다시 확인해주세요.',
+             429: '요청이 너무 잦습니다 — 잠시 후 다시 시도해주세요.'}
+    body = ''
+    try:
+        body = e.read().decode()[:300]
+    except Exception:
+        pass
+    return f'카페24 API 오류 {code}: {hints.get(code, "")}\n{body}'
+
+
+def cmd_doctor(days='7'):
+    """연동 점검 — 실주문 1페이지를 받아 (1) PII 마스킹 원문 (2) 매핑 dry-run 리포트를 파일로.
+    의뢰인은 이 두 파일만 개발자에게 보내면 된다. Notion 에는 아무것도 쓰지 않는다."""
+    import datetime as dt
+    import urllib.error
+    c = cfg()
+    print('1/3 토큰 확인 중...')
+    try:
+        access_token(c)
+    except urllib.error.HTTPError as e:
+        sys.exit(friendly_http(e))
+    except KeyError:
+        sys.exit('토큰이 없습니다 — auth-url → exchange 를 먼저 진행해주세요.')
+    print('   OK')
+    print(f'2/3 최근 {days}일 주문 수집 중...')
+    try:
+        orders = fetch_orders(c, int(days))
+    except urllib.error.HTTPError as e:
+        sys.exit(friendly_http(e))
+    print(f'   {len(orders)}건 수신')
+    stamp = dt.date.today().strftime('%Y%m%d')
+    raw_path = f'cafe24-raw-{stamp}.json'
+    json.dump({'orders': mask_pii(orders[:20])}, open(raw_path, 'w'), ensure_ascii=False, indent=2)
+    print('3/3 매핑 리포트 생성 중...')
+    report = run_sync(orders, apply_mode=False)
+    report['note'] = '점검 전용 — Notion 에는 아무것도 기록하지 않았습니다.'
+    rep_path = f'cafe24-doctor-report-{stamp}.json'
+    json.dump(report, open(rep_path, 'w'), ensure_ascii=False, indent=2)
+    print(f"""
+점검 완료. 아래 두 파일을 개발자에게 보내주세요 (고객 개인정보는 마스킹돼 있습니다):
+  1) {raw_path}  — 주문 원문 구조 (매핑 확정용, 최대 20건)
+  2) {rep_path}  — 매핑 결과 리포트
+주문이 0건이면 기간을 늘려 다시: python3 cafe24_sync.py doctor 30""")
+
+
 def cmd_parse_fixture(path):
     """네트워크 없이 파서만 검증 — 실측 페이로드 확보 시 이 fixture 를 교체한다."""
     data = json.load(open(path))
@@ -251,8 +344,8 @@ def cmd_parse_fixture(path):
 
 
 if __name__ == '__main__':
-    cmds = {'auth-url': cmd_auth_url, 'exchange': cmd_exchange,
-            'pull': cmd_pull, 'parse-fixture': cmd_parse_fixture}
+    cmds = {'setup': cmd_setup, 'auth-url': cmd_auth_url, 'exchange': cmd_exchange,
+            'doctor': cmd_doctor, 'pull': cmd_pull, 'parse-fixture': cmd_parse_fixture}
     if len(sys.argv) < 2 or sys.argv[1] not in cmds:
         sys.exit(__doc__)
     cmds[sys.argv[1]](*sys.argv[2:])
