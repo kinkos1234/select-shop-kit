@@ -6,135 +6,166 @@
 <title>select-shop-kit — 옷가게 장부, 채팅 한 줄로</title>
 <meta name="description" content="카톡 보내듯 한 줄만 남기면 AI가 매출·재고·마진을 장부에 정리하는, 1~3인 편집샵·옷가게를 위한 무료 운영 도구.">
 <style>
-/* ── OFFCUT 디자인 계약 (2026-08-14 자가검열 후 명문화) ─────────────────
-   1. 스페이싱: 8pt 스케일만 사용 — 4/8/16/24/32/40/56/80/112 (--s* 토큰).
-      이 목록에 없는 px 여백을 새로 만들지 않는다.
-   2. 폰트 굵기: 400 본문 · 600 인라인 강조 · 700 컴포넌트 제목 · 800 페이지/섹션 제목.
-      500 등 중간 굵기 금지. 위계는 굵기보다 크기·색으로 먼저.
-   3. Stroke: 보더는 1px var(--hair) 단일. 액센트 보더(3px orange)는 페이지에 1곳.
-      radius 는 4px(버튼·꼬리) / 8px(카드·코드·말풍선) 2단만.
-   4. 라이팅: 존댓말 서술체("-습니다") · 사장님 언어 우선(전문용어는 쉬운 제목 뒤
-      보조 표기) · 눈썹은 영어 대문자, 본문은 한국어 · 카드 목록은 명사형, 문단은
-      서술형 · 숫자는 천단위 콤마+원.
-   5. 색: 오렌지 액센트는 화면(섹션)당 1곳 원칙. 배경은 ink, 카드면은 graphite.
-   6. 장식: 글로우·도트그리드·워터마크 숫자는 불투명도 15% 이하 + pointer-events:none.
-      섹션당 장식 1종. 장식 지오메트리(position 오프셋·패턴 격자)는 스페이싱 스케일 예외.
-   7. 아이콘: 24 viewBox 라인 아이콘, 1.5px 스트로크, round cap. 기본 steel,
-      아이콘당 오렌지 포인트 1개까지.
-──────────────────────────────────────────────────────────── */
+/* ── OFFCUT 디자인 계약 v3 — 라이트 에디토리얼 (2026-08-14 B안 전환) ─────────
+   0. 지면: paper #F2EFE8 단일. 텍스트 ink #0A0A0B / 보조 warm #6B6660.
+      다크 캔버스는 코드블록·채팅 말풍선(사용자) 한정.
+   1. 스페이싱: 8pt 스케일만 — 4/8/16/24/32/40/56/80/112 (--s* 토큰). 목록 밖 값 금지.
+   2. 폰트 굵기: 400 본문 · 600 인라인 강조 · 700 컴포넌트 제목 · 800 디스플레이.
+      위계는 굵기보다 크기·트래킹으로 먼저.
+   3. Stroke: 보더 1px var(--hairline) 단일. 액센트 보더(3px orange) 페이지 1곳.
+      radius 4px(버튼·꼬리)/8px(카드·사진·코드) 2단.
+   4. 라이팅: 존댓말 서술체 · 사장님 언어 우선(전문용어는 보조 표기) · 눈썹 영어
+      대문자 트래킹 · 카드 목록 명사형, 문단 서술형 · 숫자 천단위 콤마+원.
+   5. 색: 오렌지 액센트 화면당 1곳. 사진 속 오렌지 1점과 UI 액센트가 경쟁하면 UI 가 양보.
+   6. 사진: 화보 3종(hero/rack/detail) — 아이보리 지면·뮤트 팔레트·세이프티 오렌지
+      1점·동일 그레이드(warm Portra). 새 사진은 같은 아트디렉션으로만 추가.
+      원본은 images/ 에 SHA1 보존, 배포는 site/assets/ 파생 JPEG.
+   7. 장식: 아웃라인 디스플레이 워터마크(OFFCUT·섹션 숫자)는 ink 10~14% 스트로크,
+      pointer-events:none, 섹션당 1개. 글로우·그리드 패턴은 라이트 프로파일에서 금지.
+   8. 아이콘: 24 viewBox 라인, 1.5px 스트로크 round cap, graphite 기본 + 오렌지 1점.
+──────────────────────────────────────────────────────────────── */
 :root{
-  --ink:#0A0A0B; --bone:#F2EFE8; --orange:#FF4D00; --steel:#8A8F98; --graphite:#1C1D1F;
-  --hair:#26272B;
+  --paper:#F2EFE8; --ink:#0A0A0B; --warm:#6B6660; --card:#FBFAF7;
+  --orange:#FF4D00; --hairline:rgba(10,10,11,.14); --graphite:#1C1D1F;
   --s4:4px; --s8:8px; --s16:16px; --s24:24px; --s32:32px; --s40:40px; --s56:56px; --s80:80px; --s112:112px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{background:var(--ink);color:var(--bone);
+body{background:var(--paper);color:var(--ink);
   font-family:"Pretendard Variable",Pretendard,-apple-system,"Helvetica Neue","Apple SD Gothic Neo","Segoe UI",sans-serif;
   line-height:1.6;-webkit-font-smoothing:antialiased;word-break:keep-all}
-.wrap{max-width:1080px;margin:0 auto;padding:0 var(--s24)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 var(--s24)}
 a{color:inherit}
-.eyebrow{font-size:13px;font-weight:600;letter-spacing:.35em;text-transform:uppercase;color:var(--steel)}
-section{padding:var(--s112) 0;border-top:1px solid var(--hair)}
+img{max-width:100%;height:auto;display:block}
+.eyebrow{font-size:13px;font-weight:600;letter-spacing:.35em;text-transform:uppercase;color:var(--warm)}
+section{padding:var(--s112) 0;border-top:1px solid var(--hairline);position:relative;overflow:hidden}
 h2{font-size:clamp(30px,5vw,46px);font-weight:800;letter-spacing:-.03em;line-height:1.15;margin:var(--s16) 0 var(--s16)}
-.lead{color:var(--steel);font-size:17px;max-width:640px}
+.lead{color:var(--warm);font-size:17px;max-width:640px}
 .accent{color:var(--orange)}
-/* hero ambient */
-header{padding:var(--s112) 0;position:relative;overflow:hidden}
-header .wrap{position:relative}
-.glow{position:absolute;top:-180px;left:-120px;width:640px;height:640px;border-radius:50%;
-  background:radial-gradient(closest-side,rgba(255,77,0,.13),transparent 70%);pointer-events:none}
-.dots{position:absolute;inset:0;pointer-events:none;
-  background-image:radial-gradient(rgba(138,143,152,.13) 1px,transparent 1px);
-  background-size:24px 24px;
-  -webkit-mask-image:radial-gradient(ellipse 75% 55% at 28% 18%,#000 0%,transparent 72%);
-  mask-image:radial-gradient(ellipse 75% 55% at 28% 18%,#000 0%,transparent 72%)}
-/* section ornament */
-section{position:relative;overflow:hidden}
-.secno{position:absolute;top:52px;right:20px;font-size:clamp(72px,11vw,140px);font-weight:800;
-  line-height:1;letter-spacing:-.04em;color:transparent;
-  -webkit-text-stroke:1px rgba(138,143,152,.15);user-select:none;pointer-events:none}
+/* top bar */
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:var(--s24) 0}
 .logo{font-size:15px;font-weight:800;letter-spacing:.02em}
 .logo .cut{color:var(--orange)}
-.hero-tag{margin-top:var(--s56);font-size:15px;font-weight:600;color:var(--steel);letter-spacing:.01em}
-h1{font-size:clamp(44px,8.5vw,96px);font-weight:800;letter-spacing:-.04em;line-height:1.02;margin:var(--s16) 0 var(--s24)}
-.hero-sub{font-size:19px;color:var(--steel);max-width:640px}
-.hero-sub b{color:var(--bone);font-weight:600}
+.nav{display:flex;gap:var(--s24);font-size:12px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--warm)}
+.nav a{text-decoration:none}
+.nav a:hover{color:var(--ink)}
+/* hero */
+header{position:relative;overflow:hidden}
+.watermark{position:absolute;top:var(--s16);left:50%;transform:translateX(-50%);
+  font-size:clamp(120px,22vw,320px);font-weight:800;letter-spacing:.02em;line-height:1;
+  color:transparent;-webkit-text-stroke:1px rgba(10,10,11,.12);white-space:nowrap;
+  user-select:none;pointer-events:none}
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:var(--s56);align-items:center;
+  padding:var(--s80) 0;position:relative}
+.hero-tag{font-size:15px;font-weight:600;color:var(--warm)}
+h1{font-size:clamp(42px,6.4vw,76px);font-weight:800;letter-spacing:-.04em;line-height:1.04;margin:var(--s16) 0 var(--s24)}
+.hero-sub{font-size:18px;color:var(--warm);max-width:520px}
+.hero-sub b{color:var(--ink);font-weight:600}
 .cta{display:flex;gap:var(--s16);margin-top:var(--s40);flex-wrap:wrap}
 .btn{display:inline-block;padding:var(--s16) var(--s24);font-size:15px;font-weight:700;text-decoration:none;border-radius:4px}
-.btn-primary{background:var(--bone);color:var(--ink)}
-.btn-ghost{border:1px solid var(--hair);color:var(--bone)}
-.btn-primary:hover{background:#fff}
-.btn-ghost:hover{border-color:var(--steel)}
+.btn-primary{background:var(--ink);color:var(--paper)}
+.btn-primary:hover{background:#000}
+.btn-ghost{border:1px solid var(--hairline);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--warm)}
+.hero-photo img{border-radius:8px;aspect-ratio:4/5;object-fit:cover;width:100%}
+.photo-cap{font-size:12px;color:var(--warm);margin-top:var(--s8);letter-spacing:.06em}
 /* chat demo */
-.chat{background:linear-gradient(180deg,#1E1F22,#161719);border:1px solid var(--hair);border-radius:8px;padding:var(--s24);max-width:660px;margin-top:var(--s56);position:relative}
-.chat::before{content:"";position:absolute;top:0;left:8%;right:8%;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(242,239,232,.16),transparent);pointer-events:none}
+.chat-strip{padding:0 0 var(--s112)}
+.chat{background:var(--card);border:1px solid var(--hairline);border-radius:8px;padding:var(--s24);max-width:660px}
 .chat .row{display:flex;margin:var(--s8) 0}
-.chat .me{margin-left:auto;background:var(--bone);color:var(--ink);padding:var(--s8) var(--s16);border-radius:8px 8px 4px 8px;font-size:15px;font-weight:600;max-width:85%}
-.chat .bot{background:#131316;border:1px solid var(--hair);padding:var(--s8) var(--s16);border-radius:8px 8px 8px 4px;font-size:14px;color:#C9C5BC;max-width:88%;white-space:pre-line}
-.chat .bot b{color:var(--bone)}
-.chat-cap{font-size:13.5px;color:var(--steel);margin-top:var(--s16)}
-/* diagram card */
-.diagram{padding:var(--s24) 0;margin-top:var(--s40)}
-.diagram svg{width:100%;height:auto;display:block}
-.diagram-cap{font-size:13px;color:var(--steel);margin-top:var(--s16);text-align:center}
+.chat .me{margin-left:auto;background:var(--ink);color:var(--paper);padding:var(--s8) var(--s16);border-radius:8px 8px 4px 8px;font-size:15px;font-weight:600;max-width:85%}
+.chat .bot{background:var(--paper);border:1px solid var(--hairline);padding:var(--s8) var(--s16);border-radius:8px 8px 8px 4px;font-size:14px;color:#3E3B36;max-width:88%;white-space:pre-line}
+.chat .bot b{color:var(--ink)}
+.chat-cap{font-size:13.5px;color:var(--warm);margin-top:var(--s16)}
 /* grid cards */
-.grid{display:grid;gap:1px;background:var(--hair);border:1px solid var(--hair);margin-top:var(--s56)}
+.grid{display:grid;gap:1px;background:var(--hairline);border:1px solid var(--hairline);margin-top:var(--s56)}
 .g3{grid-template-columns:repeat(3,1fr)}
 .g4{grid-template-columns:repeat(4,1fr)}
-.cell{background:var(--ink);padding:var(--s24)}
+.cell{background:var(--card);padding:var(--s24)}
 .cell .no{font-size:13px;font-weight:700;color:var(--orange);letter-spacing:.08em;font-variant-numeric:tabular-nums}
 .cell .ico{margin-top:var(--s16);height:28px}
 .cell .ico svg{width:28px;height:28px;display:block}
 .cell h3{font-size:17px;font-weight:700;margin:var(--s8) 0 var(--s8);letter-spacing:-.01em}
-.cell p{font-size:13.5px;color:var(--steel);line-height:1.55}
-.cell p b{color:var(--bone);font-weight:600}
+.cell p{font-size:13.5px;color:var(--warm);line-height:1.55}
+.cell p b{color:var(--ink);font-weight:600}
+/* full-bleed band */
+.band{border-top:1px solid var(--hairline)}
+.band img{width:100%;max-height:560px;object-fit:cover}
+.band-cap{text-align:right;font-size:12px;color:var(--warm);letter-spacing:.06em;padding:var(--s8) var(--s24) 0}
 /* flow */
 .flow{display:flex;flex-direction:column;gap:var(--s16);margin-top:var(--s56)}
-.step{display:grid;grid-template-columns:210px 1fr;gap:var(--s24);padding:var(--s24) 0;border-bottom:1px solid var(--hair)}
+.step{display:grid;grid-template-columns:210px 1fr;gap:var(--s24);padding:var(--s24) 0;border-bottom:1px solid var(--hairline)}
 .step .in{font-weight:700;font-size:15.5px}
-.step .out{color:var(--steel);font-size:14.5px}
-.step .out b{color:var(--bone);font-weight:600}
-/* rules */
-.rules li{list-style:none;padding:var(--s16) 0;border-bottom:1px solid var(--hair);font-size:16px}
+.step .out{color:var(--warm);font-size:14.5px}
+.step .out b{color:var(--ink);font-weight:600}
+/* diagram */
+.diagram{padding:var(--s24) 0;margin-top:var(--s40)}
+.diagram svg{width:100%;height:auto;display:block}
+.diagram-cap{font-size:13px;color:var(--warm);margin-top:var(--s16);text-align:center}
+/* ledger 2col */
+.ledger{display:grid;grid-template-columns:1.1fr .9fr;gap:var(--s56);align-items:start;margin-top:var(--s32)}
+.rules li{list-style:none;padding:var(--s16) 0;border-bottom:1px solid var(--hairline);font-size:16px}
 .rules b{font-weight:700}
-.rules .tech{color:var(--steel);font-weight:400;font-size:13.5px}
-.rules span{color:var(--steel);font-size:14.5px;display:block;margin-top:var(--s4)}
+.rules .tech{color:var(--warm);font-weight:400;font-size:13.5px}
+.rules span{color:var(--warm);font-size:14.5px;display:block;margin-top:var(--s4)}
+.ledger-photo img{border-radius:8px;width:100%}
 /* install */
-.code{background:#111214;border:1px solid var(--hair);border-radius:8px;padding:var(--s24);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;line-height:1.9;color:#C9C5BC;overflow-x:auto;margin-top:var(--s24)}
-.code .c{color:#5B5F66}
+.code{background:var(--ink);border-radius:8px;padding:var(--s24);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;line-height:1.9;color:#C9C5BC;overflow-x:auto;margin-top:var(--s24)}
+.code .c{color:#807C74}
 .code .o{color:var(--orange)}
-/* limits */
-.limit{border-left:3px solid var(--orange);padding:var(--s8) 0 var(--s8) var(--s24);margin-top:var(--s32);color:var(--steel);font-size:15px}
-.limit b{color:var(--bone)}
-footer{padding:var(--s80) 0;border-top:1px solid var(--hair)}
+.limit{border-left:3px solid var(--orange);padding:var(--s8) 0 var(--s8) var(--s24);margin-top:var(--s32);color:var(--warm);font-size:15px}
+.limit b{color:var(--ink)}
+/* section numerals */
+.secno{position:absolute;top:52px;right:20px;font-size:clamp(72px,11vw,140px);font-weight:800;
+  line-height:1;letter-spacing:-.04em;color:transparent;
+  -webkit-text-stroke:1px rgba(10,10,11,.10);user-select:none;pointer-events:none}
+footer{padding:var(--s80) 0;border-top:1px solid var(--hairline)}
 footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--s16)}
-footer p{color:var(--steel);font-size:13.5px}
+footer p{color:var(--warm);font-size:13.5px}
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;gap:var(--s40);align-items:start}
+  .ledger{grid-template-columns:1fr}
+}
 @media (max-width:760px){
   .secno{display:none}
+  .nav{display:none}
   .g3,.g4{grid-template-columns:1fr 1fr}
   .step{grid-template-columns:1fr;gap:var(--s8)}
   section{padding:var(--s80) 0}
-  header{padding:var(--s80) 0}
+  .hero{padding:var(--s80) 0 var(--s56)}
 }
-@media (max-width:480px){ .g3,.g4{grid-template-columns:1fr} .diagram{padding:var(--s8) 0} }
+@media (max-width:480px){ .g3,.g4{grid-template-columns:1fr} }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="glow"></div>
-  <div class="dots"></div>
+  <div class="watermark">OFFCUT</div>
   <div class="wrap">
-    <div class="logo">OFF<span class="cut">C</span>UT · SELECT-SHOP-KIT</div>
-    <div class="hero-tag">1~3인 편집샵·옷가게를 위한 무료 AI 운영 도구</div>
-    <h1>옷가게 장부,<br>채팅 <span class="accent">한 줄</span>로 끝.</h1>
-    <p class="hero-sub">카톡 보내듯 <b>"티셔츠 블랙 M 하나 팔림"</b> 한 줄만 남기면 — AI가 장부에 적고, 재고를 빼고, 남는 돈까지 계산해 둡니다. 아침엔 오늘 할 일과 어제 매출을 <b>먼저 보고</b>합니다.</p>
-    <div class="cta">
-      <a class="btn btn-primary" href="#start">10분이면 시작합니다</a>
-      <a class="btn btn-ghost" href="https://github.com/kinkos1234/select-shop-kit">GitHub</a>
+    <div class="topbar">
+      <div class="logo">OFF<span class="cut">C</span>UT · SELECT-SHOP-KIT</div>
+      <nav class="nav"><a href="#how">How</a><a href="#start">Install</a><a href="https://github.com/kinkos1234/select-shop-kit">GitHub</a></nav>
     </div>
+    <div class="hero">
+      <div>
+        <div class="hero-tag">1~3인 편집샵·옷가게를 위한 무료 AI 운영 도구</div>
+        <h1>옷가게 장부,<br>채팅 <span class="accent">한 줄</span>로 끝.</h1>
+        <p class="hero-sub">카톡 보내듯 <b>"티셔츠 블랙 M 하나 팔림"</b> 한 줄만 남기면 — AI가 장부에 적고, 재고를 빼고, 남는 돈까지 계산해 둡니다. 아침엔 오늘 할 일과 어제 매출을 <b>먼저 보고</b>합니다.</p>
+        <div class="cta">
+          <a class="btn btn-primary" href="#start">10분이면 시작합니다</a>
+          <a class="btn btn-ghost" href="https://github.com/kinkos1234/select-shop-kit">GitHub</a>
+        </div>
+      </div>
+      <div class="hero-photo">
+        <img src="assets/hero.jpg" alt="아이보리 배경 앞에 선 스트릿웨어 차림의 모델 — 오렌지 크로스백 포인트" width="1122" height="1402">
+        <div class="photo-cap">OFFCUT LOOK 01 — SAFETY ORANGE</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="chat-strip">
+  <div class="wrap">
     <div class="chat">
       <div class="row"><div class="me">오늘 매장에서 VA 아치로고 티 블랙M 1장 카드, 4만9천</div></div>
       <div class="row"><div class="bot"><b>기록 완료.</b> 매출 대장 +1행 · 원가 26,900원 · 남는 돈 <b>22,100원</b>
@@ -145,7 +176,7 @@ footer p{color:var(--steel);font-size:13.5px}
       <div class="chat-cap">실제 사용 화면 그대로입니다 — 매장에서 직원 폰으로 보낸 메시지와 AI의 답.</div>
     </div>
   </div>
-</header>
+</div>
 
 <section id="benefit">
   <div class="secno">01</div>
@@ -153,12 +184,17 @@ footer p{color:var(--steel);font-size:13.5px}
     <div class="eyebrow">Before → After</div>
     <h2>저녁마다 하던 정리가 사라집니다</h2>
     <div class="grid g3">
-      <div class="cell"><div class="no">01</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#8A8F98" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21l-2-1.5L6 21V3z"/><path d="M9 8h6M9 12h6"/><path d="M9 16h3" stroke="#FF4D00"/></svg></div><h3>"마감하고 엑셀 정리 30분…"</h3><p>→ <b>팔릴 때 한 줄</b>이면 끝. 매출·재고·마진이 그 자리에서 장부에 정리됩니다. 반품·교환도 말로 하면 됩니다.</p></div>
-      <div class="cell"><div class="no">02</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#8A8F98" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v10H3zM14 10h4l3 3v4h-7"/><circle cx="7" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/><path d="M6 10h5" stroke="#FF4D00"/></svg></div><h3>"발주한 거 얼마나 안 왔더라?"</h3><p>→ <b>매일 아침 AI가 먼저 보고</b>합니다. 늦고 있는 발주, 떨어져가는 재고, 거래처에 줘야 할 돈, 카드사에서 덜 들어온 정산까지.</p></div>
-      <div class="cell"><div class="no">03</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#8A8F98" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7"/><path d="M4 7l6-3 6 4 4-2" stroke="#FF4D00"/><circle cx="20" cy="6" r="1.4" stroke="#FF4D00"/></svg></div><h3>"이번 달 얼마 남았지?"</h3><p>→ 채팅으로 물어보면 <b>반품 빼고 원가 따져서</b> 바로 답합니다. 월간 리포트엔 부가세 예상액까지.</p></div>
+      <div class="cell"><div class="no">01</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#1C1D1F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21l-2-1.5L6 21V3z"/><path d="M9 8h6M9 12h6"/><path d="M9 16h3" stroke="#FF4D00"/></svg></div><h3>"마감하고 엑셀 정리 30분…"</h3><p>→ <b>팔릴 때 한 줄</b>이면 끝. 매출·재고·마진이 그 자리에서 장부에 정리됩니다. 반품·교환도 말로 하면 됩니다.</p></div>
+      <div class="cell"><div class="no">02</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#1C1D1F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h12M4 6a2 2 0 1 1 4 0M4 6v13M16 6v13M4 19h12M16 6a2 2 0 1 0 4 0"/><path d="M8 6v5a2 2 0 0 0 4 0V6" stroke="#FF4D00"/></svg></div><h3>"발주한 거 얼마나 안 왔더라?"</h3><p>→ <b>매일 아침 AI가 먼저 보고</b>합니다. 늦고 있는 발주, 떨어져가는 재고, 거래처에 줘야 할 돈, 카드사에서 덜 들어온 정산까지.</p></div>
+      <div class="cell"><div class="no">03</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#1C1D1F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7"/><path d="M4 7l6-3 6 4 4-2" stroke="#FF4D00"/><circle cx="20" cy="6" r="1.4" stroke="#FF4D00"/></svg></div><h3>"이번 달 얼마 남았지?"</h3><p>→ 채팅으로 물어보면 <b>반품 빼고 원가 따져서</b> 바로 답합니다. 월간 리포트엔 부가세 예상액까지.</p></div>
     </div>
   </div>
 </section>
+
+<div class="band">
+  <img src="assets/rack.jpg" alt="아이보리 벽 앞 블랙 스틸 행거에 걸린 뮤트 톤 스트릿웨어 — 오렌지 택 포인트" width="1536" height="1024" loading="lazy">
+  <div class="band-cap">NEW STOCK — 사입 검수부터 장부는 자동으로 따라옵니다</div>
+</div>
 
 <section>
   <div class="secno">02</div>
@@ -197,7 +233,7 @@ footer p{color:var(--steel);font-size:13.5px}
   font-weight: 700;
   font-display: swap;
   unicode-range: U+0,U+D,U+20-7B,U+AB,U+B5,U+B7,U+BB,U+BF-D0,U+D2-D6,U+D8-E6,U+E8-EF,U+F1-F6,U+F8-106,U+108,U+10A,U+10C,U+10E-11C,U+11E,U+120,U+122,U+124-13F,U+141-142,U+144,U+146,U+148-149,U+14B-17F,U+18F,U+1FA-1FF,U+218-21B,U+237,U+259,U+386,U+388-38A,U+38C,U+38E-3A1,U+3A3-3CE,U+400-404,U+406-407,U+409-40A,U+40C-414,U+416-45F,U+490-491,U+493,U+496-497,U+49A-49D,U+4A2-4A3,U+4AE-4AF,U+4B2-4B3,U+4B8-4B9,U+4BB,U+4C0,U+4CF,U+4D8,U+4E8-4E9,U+1E80-1E85,U+1E9E,U+1EF2-1EF3,U+2018-201A,U+201C-201E,U+2026,U+2039-203A,U+2044,U+2166,U+FB00-FB04;
-}</style><rect x="0" y="0" width="420" height="170" fill="transparent"/><g id="infographic-container"><g><g><g><g><g><foreignObject overflow="visible" x="2.2252400810884865e-7" y="20.40624459291481" width="139.99999977747598" height="19.593751592387925"><span xmlns="http://www.w3.org/1999/xhtml" style="overflow: visible; color: rgb(255, 255, 255); font-size: 14px; line-height: 1.4; width: 100%; height: 100%; display: flex; flex-wrap: wrap; word-break: break-word; white-space: pre-wrap; text-align: center; place-content: flex-end center; align-items: flex-end;">폰으로 한 줄 보내면</span></foreignObject></g><g transform="translate(0, 40)"><foreignObject overflow="visible" x="2.2252400810884865e-7" y="0.40625150463979054" width="139.99999977747598" height="19.593750402708842"><span xmlns="http://www.w3.org/1999/xhtml" style="overflow: visible; color: rgb(255, 255, 255); font-weight: bold; font-size: 14px; line-height: 1.4; width: 100%; height: 100%; display: flex; flex-wrap: wrap; word-break: break-word; white-space: pre-wrap; text-align: center; place-content: flex-end center; align-items: flex-end;">Discord</span></foreignObject></g><g transform="translate(0, 70)"><polygon width="140" height="30" fill="#ff4d00" points="0,0 130,0 140,15 130,30 0,30 10,15"/><g><text width="140" height="30" x="70" y="15" fill="#fff" font-size="16" text-anchor="middle" dominant-baseline="central" font-weight="bold" style="user-select: none; pointer-events: none;">01</text></g></g></g></g><g transform="translate(140, 0)"><g><g transform="translate(0, 70)"><polygon width="140" height="30" fill="#55585f" points="0,0 130,0 140,15 130,30 0,30 10,15"/><g><text width="140" height="30" x="70" y="15" fill="#fff" font-size="16" text-anchor="middle" dominant-baseline="central" font-weight="bold" style="user-select: none; pointer-events: none;">02</text></g></g><g transform="translate(0, 110)"><foreignObject overflow="visible" x="-0.000004984537554264534" y="0.000010617573934723623" width="140.00000498453755" height="19.59372865221913"><span xmlns="http://www.w3.org/1999/xhtml" style="overflow: visible; color: rgb(255, 255, 255); font-weight: bold; font-size: 14px; line-height: 1.4; width: 100%; height: 100%; display: flex; flex-wrap: wrap; word-break: break-word; white-space: pre-wrap; text-align: center; place-content: flex-start center; align-items: flex-start;">Claude Code</span></foreignObject></g><g transform="translate(0, 130)"><foreignObject overflow="visible" x="-0.000004984537554264534" y="-0.000003725687747646589" width="140.00000498453755" height="19.593750271906384"><span xmlns="http://www.w3.org/1999/xhtml" style="overflow: visible; color: rgb(255, 255, 255); font-size: 14px; line-height: 1.4; width: 100%; height: 100%; display: flex; flex-wrap: wrap; word-break: break-word; white-space: pre-wrap; text-align: center; place-content: flex-start center; align-items: flex-start;">AI가 알아듣고 기록</span></foreignObject></g></g></g><g transform="translate(280, 0)"><g><g><foreignObject overflow="visible" x="0.000004984537554264534" y="20.40624459291481" width="139.99999501546245" height="19.593751592387925"><span xmlns="http://www.w3.org/1999/xhtml" style="overflow: visible; color: rgb(255, 255, 255); font-size: 14px; line-height: 1.4; width: 100%; height: 100%; display: flex; flex-wrap: wrap; word-break: break-word; white-space: pre-wrap; text-align: center; place-content: flex-end center; align-items: flex-end;">장부·대시보드 완성</span></foreignObject></g><g transform="translate(0, 40)"><foreignObject overflow="visible" x="0.000004984537554264534" y="0.40625150463979054" width="139.99999501546245" height="19.593750402708842"><span xmlns="http://www.w3.org/1999/xhtml" style="overflow: visible; color: rgb(255, 255, 255); font-weight: bold; font-size: 14px; line-height: 1.4; width: 100%; height: 100%; display: flex; flex-wrap: wrap; word-break: break-word; white-space: pre-wrap; text-align: center; place-content: flex-end center; align-items: flex-end;">Notion</span></foreignObject></g><g transform="translate(0, 70)"><polygon width="140" height="30" fill="#2e3036" points="0,0 130,0 140,15 130,30 0,30 10,15"/><g><text width="140" height="30" x="70" y="15" fill="#fff" font-size="16" text-anchor="middle" dominant-baseline="central" font-weight="bold" style="user-select: none; pointer-events: none;">03</text></g></g></g></g></g></g></g></svg><div class="diagram-cap">보내면 → 알아듣고 → 정리됩니다. 사람이 하는 일은 첫 칸의 한 줄뿐.</div></div>
+}</style><rect x="0" y="0" width="420" height="170" fill="transparent"/><g id="infographic-container"><g><g><g><g><g><foreignObject overflow="visible" x="2.2252400810884865e-7" y="20.40624459291481" width="139.99999977747598" height="19.593751592387925"><span xmlns="http://www.w3.org/1999/xhtml" style="overflow: visible; color: rgb(10, 10, 11); font-size: 14px; line-height: 1.4; width: 100%; height: 100%; display: flex; flex-wrap: wrap; word-break: break-word; white-space: pre-wrap; text-align: center; place-content: flex-end center; align-items: flex-end;">폰으로 한 줄 보내면</span></foreignObject></g><g transform="translate(0, 40)"><foreignObject overflow="visible" x="2.2252400810884865e-7" y="0.40625150463979054" width="139.99999977747598" height="19.593750402708842"><span xmlns="http://www.w3.org/1999/xhtml" style="overflow: visible; color: rgb(10, 10, 11); font-weight: bold; font-size: 14px; line-height: 1.4; width: 100%; height: 100%; display: flex; flex-wrap: wrap; word-break: break-word; white-space: pre-wrap; text-align: center; place-content: flex-end center; align-items: flex-end;">Discord</span></foreignObject></g><g transform="translate(0, 70)"><polygon width="140" height="30" fill="#ff4d00" points="0,0 130,0 140,15 130,30 0,30 10,15"/><g><text width="140" height="30" x="70" y="15" fill="#F2EFE8" font-size="16" text-anchor="middle" dominant-baseline="central" font-weight="bold" style="user-select: none; pointer-events: none;">01</text></g></g></g></g><g transform="translate(140, 0)"><g><g transform="translate(0, 70)"><polygon width="140" height="30" fill="#1c1d1f" points="0,0 130,0 140,15 130,30 0,30 10,15"/><g><text width="140" height="30" x="70" y="15" fill="#F2EFE8" font-size="16" text-anchor="middle" dominant-baseline="central" font-weight="bold" style="user-select: none; pointer-events: none;">02</text></g></g><g transform="translate(0, 110)"><foreignObject overflow="visible" x="-0.000004984537554264534" y="0.000010617573934723623" width="140.00000498453755" height="19.59372865221913"><span xmlns="http://www.w3.org/1999/xhtml" style="overflow: visible; color: rgb(10, 10, 11); font-weight: bold; font-size: 14px; line-height: 1.4; width: 100%; height: 100%; display: flex; flex-wrap: wrap; word-break: break-word; white-space: pre-wrap; text-align: center; place-content: flex-start center; align-items: flex-start;">Claude Code</span></foreignObject></g><g transform="translate(0, 130)"><foreignObject overflow="visible" x="-0.000004984537554264534" y="-0.000003725687747646589" width="140.00000498453755" height="19.593750271906384"><span xmlns="http://www.w3.org/1999/xhtml" style="overflow: visible; color: rgb(10, 10, 11); font-size: 14px; line-height: 1.4; width: 100%; height: 100%; display: flex; flex-wrap: wrap; word-break: break-word; white-space: pre-wrap; text-align: center; place-content: flex-start center; align-items: flex-start;">AI가 알아듣고 기록</span></foreignObject></g></g></g><g transform="translate(280, 0)"><g><g><foreignObject overflow="visible" x="0.000004984537554264534" y="20.40624459291481" width="139.99999501546245" height="19.593751592387925"><span xmlns="http://www.w3.org/1999/xhtml" style="overflow: visible; color: rgb(10, 10, 11); font-size: 14px; line-height: 1.4; width: 100%; height: 100%; display: flex; flex-wrap: wrap; word-break: break-word; white-space: pre-wrap; text-align: center; place-content: flex-end center; align-items: flex-end;">장부·대시보드 완성</span></foreignObject></g><g transform="translate(0, 40)"><foreignObject overflow="visible" x="0.000004984537554264534" y="0.40625150463979054" width="139.99999501546245" height="19.593750402708842"><span xmlns="http://www.w3.org/1999/xhtml" style="overflow: visible; color: rgb(10, 10, 11); font-weight: bold; font-size: 14px; line-height: 1.4; width: 100%; height: 100%; display: flex; flex-wrap: wrap; word-break: break-word; white-space: pre-wrap; text-align: center; place-content: flex-end center; align-items: flex-end;">Notion</span></foreignObject></g><g transform="translate(0, 70)"><polygon width="140" height="30" fill="#a8a29a" points="0,0 130,0 140,15 130,30 0,30 10,15"/><g><text width="140" height="30" x="70" y="15" fill="#F2EFE8" font-size="16" text-anchor="middle" dominant-baseline="central" font-weight="bold" style="user-select: none; pointer-events: none;">03</text></g></g></g></g></g></g></g></svg><div class="diagram-cap">보내면 → 알아듣고 → 정리됩니다. 사람이 하는 일은 첫 칸의 한 줄뿐.</div></div>
     <div class="grid g3">
       <div class="cell"><div class="no">말하는 곳</div><h3>Discord</h3><p>직원끼리 쓰는 채팅앱. 매장에서 폰으로 한 줄 보내면 됩니다. 녹음 파일, 주문 파일도 여기로. 셋이 같은 채널을 씁니다.</p></div>
       <div class="cell"><div class="no">일하는 AI</div><h3>Claude Code</h3><p>사람 말을 알아듣는 AI 직원. 상품을 찾아 매칭하고, 장부 규칙대로 검증한 뒤 기록합니다.</p></div>
@@ -235,13 +271,19 @@ footer p{color:var(--steel);font-size:13.5px}
     <div class="eyebrow">Ledger Discipline</div>
     <h2>템플릿이 아니라 <span class="accent">규율</span>입니다</h2>
     <p class="lead">예쁜 장부는 많습니다. 이 킷의 가치는 숫자가 틀어지는 길목을 미리 막아두는 데 있습니다.</p>
-    <ul class="rules" style="margin-top:var(--s32)">
-      <li><b>지우개 없는 장부</b> <span class="tech">(append-only)</span><span>과거 기록은 절대 고치지 않습니다. 정정·반품·교환 전부 새 줄 — 숫자의 근거가 사라지지 않습니다.</span></li>
-      <li><b>그때 원가로 그때 마진</b> <span class="tech">(원가 스냅샷)</span><span>판 순간의 사입가를 함께 적어둡니다. 다음 시즌에 사입가가 올라도 지난달 마진이 바뀌지 않습니다.</span></li>
-      <li><b>실수로 두 번 보내도 안전</b> <span class="tech">(멱등키)</span><span>같은 메시지, 같은 파일이 두 번 처리돼도 기록은 한 번만 남습니다.</span></li>
-      <li><b>안 맞으면 바로 보입니다</b> <span class="tech">(자동 대조)</span><span>발주와 입고, 주문과 품목 합계, 장부와 실입금 — 어긋나는 순간 자동으로 표시됩니다.</span></li>
-      <li><b>재고는 고치지 않고 흔적으로</b> <span class="tech">(실사조정)</span><span>실사에서 1개가 비면 숫자를 고치는 게 아니라 "실사조정 −1" 한 줄을 남깁니다.</span></li>
-    </ul>
+    <div class="ledger">
+      <ul class="rules">
+        <li><b>지우개 없는 장부</b> <span class="tech">(append-only)</span><span>과거 기록은 절대 고치지 않습니다. 정정·반품·교환 전부 새 줄 — 숫자의 근거가 사라지지 않습니다.</span></li>
+        <li><b>그때 원가로 그때 마진</b> <span class="tech">(원가 스냅샷)</span><span>판 순간의 사입가를 함께 적어둡니다. 다음 시즌에 사입가가 올라도 지난달 마진이 바뀌지 않습니다.</span></li>
+        <li><b>실수로 두 번 보내도 안전</b> <span class="tech">(멱등키)</span><span>같은 메시지, 같은 파일이 두 번 처리돼도 기록은 한 번만 남습니다.</span></li>
+        <li><b>안 맞으면 바로 보입니다</b> <span class="tech">(자동 대조)</span><span>발주와 입고, 주문과 품목 합계, 장부와 실입금 — 어긋나는 순간 자동으로 표시됩니다.</span></li>
+        <li><b>재고는 고치지 않고 흔적으로</b> <span class="tech">(실사조정)</span><span>실사에서 1개가 비면 숫자를 고치는 게 아니라 "실사조정 −1" 한 줄을 남깁니다.</span></li>
+      </ul>
+      <div class="ledger-photo">
+        <img src="assets/detail.jpg" alt="접힌 니트 스택 위의 오렌지 행택 — 사입 검수" width="1000" height="1000" loading="lazy">
+        <div class="photo-cap">RESTOCK — 입고 한 줄이면 원장·미지급·발주 잔액이 함께 움직입니다</div>
+      </div>
+    </div>
   </div>
 </section>
 

@@ -3,3 +3,5 @@ __pycache__/
 .qa-evidence.json
 .DS_Store
 .vercel
+images/
+.comad/
