@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>select-shop-kit — 편집샵 운영을 채팅 한 줄로</title>
-<meta name="description" content="Discord × Claude Code × Notion으로 패션 편집샵의 매출·재고·발주·정산·회의록을 자동화하는 오픈소스 킷.">
+<title>select-shop-kit — 옷가게 장부, 채팅 한 줄로</title>
+<meta name="description" content="카톡 보내듯 한 줄만 남기면 AI가 매출·재고·마진을 장부에 정리하는, 1~3인 편집샵·옷가게를 위한 무료 운영 도구.">
 <style>
 :root{
   --ink:#0A0A0B; --bone:#F2EFE8; --orange:#FF4D00; --steel:#8A8F98; --graphite:#1C1D1F;
@@ -23,11 +23,13 @@ h2{font-size:clamp(30px,5vw,46px);font-weight:800;letter-spacing:-.03em;line-hei
 .lead{color:var(--steel);font-size:17px;max-width:640px}
 .accent{color:var(--orange)}
 /* hero */
-header{padding:130px 0 110px}
+header{padding:110px 0 110px}
 .logo{font-size:15px;font-weight:800;letter-spacing:.02em}
 .logo .cut{color:var(--orange)}
-h1{font-size:clamp(44px,8.5vw,96px);font-weight:800;letter-spacing:-.04em;line-height:1.02;margin:26px 0 24px}
-.hero-sub{font-size:19px;color:var(--steel);max-width:620px}
+.hero-tag{margin-top:56px;font-size:15px;font-weight:600;color:var(--steel);letter-spacing:.01em}
+h1{font-size:clamp(44px,8.5vw,96px);font-weight:800;letter-spacing:-.04em;line-height:1.02;margin:14px 0 24px}
+.hero-sub{font-size:19px;color:var(--steel);max-width:640px}
+.hero-sub b{color:var(--bone);font-weight:600}
 .cta{display:flex;gap:14px;margin-top:42px;flex-wrap:wrap}
 .btn{display:inline-block;padding:14px 26px;font-size:15px;font-weight:700;text-decoration:none;border-radius:3px}
 .btn-primary{background:var(--bone);color:var(--ink)}
@@ -40,6 +42,7 @@ h1{font-size:clamp(44px,8.5vw,96px);font-weight:800;letter-spacing:-.04em;line-h
 .chat .me{margin-left:auto;background:var(--bone);color:var(--ink);padding:10px 16px;border-radius:14px 14px 3px 14px;font-size:15px;font-weight:600;max-width:85%}
 .chat .bot{background:#131316;border:1px solid var(--hair);padding:12px 16px;border-radius:14px 14px 14px 3px;font-size:14px;color:#C9C5BC;max-width:88%;white-space:pre-line}
 .chat .bot b{color:var(--bone)}
+.chat-cap{font-size:13.5px;color:var(--steel);margin-top:14px}
 /* grid cards */
 .grid{display:grid;gap:1px;background:var(--hair);border:1px solid var(--hair);margin-top:50px}
 .g3{grid-template-columns:repeat(3,1fr)}
@@ -48,6 +51,7 @@ h1{font-size:clamp(44px,8.5vw,96px);font-weight:800;letter-spacing:-.04em;line-h
 .cell .no{font-size:13px;font-weight:700;color:var(--orange);letter-spacing:.08em;font-variant-numeric:tabular-nums}
 .cell h3{font-size:17px;font-weight:700;margin:10px 0 8px;letter-spacing:-.01em}
 .cell p{font-size:13.5px;color:var(--steel);line-height:1.55}
+.cell p b{color:var(--bone);font-weight:600}
 /* flow */
 .flow{display:flex;flex-direction:column;gap:14px;margin-top:50px}
 .step{display:grid;grid-template-columns:210px 1fr;gap:24px;padding:22px 0;border-bottom:1px solid var(--hair)}
@@ -57,6 +61,7 @@ h1{font-size:clamp(44px,8.5vw,96px);font-weight:800;letter-spacing:-.04em;line-h
 /* rules */
 .rules li{list-style:none;padding:16px 0;border-bottom:1px solid var(--hair);font-size:16px}
 .rules b{font-weight:700}
+.rules .tech{color:var(--steel);font-weight:500;font-size:13.5px}
 .rules span{color:var(--steel);font-size:14.5px;display:block;margin-top:4px}
 /* install */
 .code{background:#111214;border:1px solid var(--hair);border-radius:6px;padding:22px 24px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;line-height:1.9;color:#C9C5BC;overflow-x:auto;margin-top:28px}
@@ -72,6 +77,7 @@ footer p{color:var(--steel);font-size:13.5px}
   .g3,.g4{grid-template-columns:1fr 1fr}
   .step{grid-template-columns:1fr;gap:8px}
   section{padding:80px 0}
+  header{padding:80px 0}
 }
 @media (max-width:480px){ .g3,.g4{grid-template-columns:1fr} }
 </style>
@@ -81,32 +87,33 @@ footer p{color:var(--steel);font-size:13.5px}
 <header>
   <div class="wrap">
     <div class="logo">OFF<span class="cut">C</span>UT · SELECT-SHOP-KIT</div>
-    <h1>가게 운영을,<br>채팅 한 줄로.</h1>
-    <p class="hero-sub">Discord로 "자켓 차콜 M 하나 카드로 팔림" 한 줄을 보내면 — Claude Code가 매출을 기록하고, 재고를 차감하고, 원가를 스냅샷하고, 마진을 계산해 Notion에 쌓습니다. 사입도 같습니다: 발주를 넣어두면 미입고 잔액·거래처 미지급금이 스스로 대사되고, 아침마다 발주 지연·재발주점 도달·정산 차이가 먼저 브리핑됩니다. 패션 편집샵(1~3인)을 위한 오픈소스 운영 킷.</p>
+    <div class="hero-tag">1~3인 편집샵·옷가게를 위한 무료 AI 운영 도구</div>
+    <h1>옷가게 장부,<br>채팅 <span class="accent">한 줄</span>로 끝.</h1>
+    <p class="hero-sub">카톡 보내듯 <b>"티셔츠 블랙 M 하나 팔림"</b> 한 줄만 남기면 — AI가 장부에 적고, 재고를 빼고, 남는 돈까지 계산해 둡니다. 아침엔 오늘 할 일과 어제 매출을 <b>먼저 보고</b>합니다.</p>
     <div class="cta">
-      <a class="btn btn-primary" href="https://github.com/kinkos1234/select-shop-kit">GitHub에서 시작하기</a>
-      <a class="btn btn-ghost" href="#how">어떻게 동작하나</a>
+      <a class="btn btn-primary" href="#start">10분이면 시작합니다</a>
+      <a class="btn btn-ghost" href="https://github.com/kinkos1234/select-shop-kit">GitHub</a>
     </div>
     <div class="chat">
       <div class="row"><div class="me">오늘 매장에서 VA 아치로고 티 블랙M 1장 카드, 4만9천</div></div>
-      <div class="row"><div class="bot"><b>기록 완료.</b> 매출 대장 +1행 · 원가 스냅샷 26,900원 · 마진 <b>22,100원</b>
-재고 3 → 2 (재고있음) · 담당: 박매니저</div></div>
+      <div class="row"><div class="bot"><b>기록 완료.</b> 매출 대장 +1행 · 원가 26,900원 · 남는 돈 <b>22,100원</b>
+재고 3 → 2 · 담당: 박매니저</div></div>
       <div class="row"><div class="me">이번 주 매출 어때?</div></div>
       <div class="row"><div class="bot">순매출 <b>1,705,500원</b> (반품 −109,000) · 마진 784,100원
 자사몰 30% · 베스트: 콜라보 티 13장 · <b>품절 임박 2종</b> (자켓 L, 크로스백)</div></div>
+      <div class="chat-cap">실제 사용 화면 그대로입니다 — 매장에서 직원 폰으로 보낸 메시지와 AI의 답.</div>
     </div>
   </div>
 </header>
 
-<section id="how">
+<section id="benefit">
   <div class="wrap">
-    <div class="eyebrow">Architecture</div>
-    <h2>3층이면 충분합니다</h2>
-    <p class="lead">POS도, ERP도, 서버도 없습니다. 이미 쓰는 도구 3개를 원장 규율로 묶습니다.</p>
+    <div class="eyebrow">Before → After</div>
+    <h2>저녁마다 하던 정리가 사라집니다</h2>
     <div class="grid g3">
-      <div class="cell"><div class="no">입출력</div><h3>Discord</h3><p>매장에서 폰으로 한 줄 입력. 녹음 파일, 주문 CSV도 여기로 던집니다. 직원 3인이 같은 채널을 씁니다.</p></div>
-      <div class="cell"><div class="no">실행</div><h3>Claude Code</h3><p>자연어를 파싱해 상품을 매칭하고, 검증하고, 기록합니다. 스킬 4종이 워크플로우를 강제합니다.</p></div>
-      <div class="cell"><div class="no">데이터</div><h3>Notion</h3><p>DB 13종이 단일 진실원. 사람은 대시보드·갤러리·칸반으로 봅니다. 셋업 스크립트가 전부 자동 생성.</p></div>
+      <div class="cell"><div class="no">01</div><h3>"마감하고 엑셀 정리 30분…"</h3><p>→ <b>팔릴 때 한 줄</b>이면 끝. 매출·재고·마진이 그 자리에서 장부에 정리됩니다. 반품·교환도 말로 하면 됩니다.</p></div>
+      <div class="cell"><div class="no">02</div><h3>"발주한 거 얼마나 안 왔더라?"</h3><p>→ <b>매일 아침 AI가 먼저 보고</b>합니다. 늦고 있는 발주, 떨어져가는 재고, 거래처에 줘야 할 돈, 카드사에서 덜 들어온 정산까지.</p></div>
+      <div class="cell"><div class="no">03</div><h3>"이번 달 얼마 남았지?"</h3><p>→ 채팅으로 물어보면 <b>반품 빼고 원가 따져서</b> 바로 답합니다. 월간 리포트엔 부가세 예상액까지.</p></div>
     </div>
   </div>
 </section>
@@ -116,12 +123,25 @@ footer p{color:var(--steel);font-size:13.5px}
     <div class="eyebrow">Workflows</div>
     <h2>실제로 이런 일이 자동화됩니다</h2>
     <div class="flow">
-      <div class="step"><div class="in">판매 한 줄</div><div class="out">상품 매칭 → 매출 행 + <b>원가 스냅샷</b> + 재고 차감. 반품은 음수 행, 교환은 반품+판매 2행 — 과거 기록은 절대 수정하지 않습니다.</div></div>
-      <div class="step"><div class="in">회의 녹음 업로드</div><div class="out"><b>로컬 whisper</b>로 전사(녹음이 외부 서버로 안 나감) → 요약·결정사항·액션아이템 → Notion 회의록 + 일정 DB 자동 등록.</div></div>
-      <div class="step"><div class="in">자사몰 주문 CSV</div><div class="out">플랫폼 무관 컬럼 자동 인식 → 주문 헤더/라인 분리 기록. <b>멱등키</b>(파일 해시+행번호)로 같은 파일을 두 번 올려도 이중 기록 없음.</div></div>
-      <div class="step"><div class="in">발주 → 입고</div><div class="out">발주(PO)에 입고 기록이 자동 대사 — <b>미입고 잔액</b>이 실시간 계산. 해외 브랜드 부분입고 추적. SKU별 <b>재발주점</b>을 치면 품절임박으로 자동 전환.</div></div>
-      <div class="step"><div class="in">매일 아침 (cron)</div><div class="out">사람이 묻기 전에 시스템이 먼저 push — 오늘 일정 · <b>발주 지연 D+N</b> · 품절임박 · 미지급 · 정산 차이 · 어제 매출. 저녁엔 마감 브리핑이 미기록 건을 물어봅니다.</div></div>
-      <div class="step"><div class="in">"마감하자"</div><div class="out">오늘 매출 요약 + 미기록 확인 질문 + 내일 일정 브리핑. 월간 리포트는 채널·브랜드별 순매출, 드롭 sell-through, <b>부가세 예상액</b>까지.</div></div>
+      <div class="step"><div class="in">판매 한 줄</div><div class="out">어떤 상품인지 알아듣고 매출 기록 + 재고 차감 + <b>그 시점 원가로 마진 계산</b>. 반품·교환은 장부를 고치지 않고 새 줄로 남깁니다.</div></div>
+      <div class="step"><div class="in">매일 아침 브리핑</div><div class="out">묻기 전에 먼저 보고 — 오늘 일정 · <b>늦고 있는 발주</b> · 품절임박 · 줘야 할 돈 · 정산 차이 · 어제 매출. 저녁엔 마감 보고가 빠뜨린 기록을 물어봅니다.</div></div>
+      <div class="step"><div class="in">발주 → 입고</div><div class="out">발주를 걸어두면 물건이 들어올 때마다 <b>얼마나 안 왔는지 자동 계산</b>. 나눠서 들어와도 추적됩니다. 상품마다 정한 기준 이하로 재고가 떨어지면 품절임박 경고.</div></div>
+      <div class="step"><div class="in">자사몰 주문 파일</div><div class="out">쇼핑몰 관리자에서 받은 주문 CSV를 그대로 던지면 알아서 정리. <b>같은 파일을 두 번 올려도 이중 기록이 안 생깁니다.</b> 카페24는 자동 연동 준비 중.</div></div>
+      <div class="step"><div class="in">회의 녹음 업로드</div><div class="out">녹음을 <b>내 컴퓨터 안에서</b> 글로 옮기고(외부 서버로 안 나감) 요약·결정사항·할 일을 정리해 일정에 등록합니다.</div></div>
+      <div class="step"><div class="in">"마감하자"</div><div class="out">오늘 매출 요약 + 빠진 기록 확인 + 내일 일정. 월간 리포트는 채널·브랜드별 순매출, 드롭 소진율, <b>부가세 예상액</b>까지.</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="eyebrow">How It Works</div>
+    <h2>새로 배울 프로그램이 없습니다</h2>
+    <p class="lead">POS도, ERP도, 서버도 없습니다. 이미 쓰는 앱 3개를 연결할 뿐입니다.</p>
+    <div class="grid g3">
+      <div class="cell"><div class="no">말하는 곳</div><h3>Discord</h3><p>직원끼리 쓰는 채팅앱. 매장에서 폰으로 한 줄 보내면 됩니다. 녹음 파일, 주문 파일도 여기로. 셋이 같은 채널을 씁니다.</p></div>
+      <div class="cell"><div class="no">일하는 AI</div><h3>Claude Code</h3><p>사람 말을 알아듣는 AI 직원. 상품을 찾아 매칭하고, 장부 규칙대로 검증한 뒤 기록합니다.</p></div>
+      <div class="cell"><div class="no">보는 장부</div><h3>Notion</h3><p>많이 쓰는 메모·문서 앱. 서로 연결된 장부 13권이 자동으로 만들어지고, 대시보드 한 화면으로 봅니다.</p></div>
     </div>
   </div>
 </section>
@@ -129,21 +149,21 @@ footer p{color:var(--steel);font-size:13.5px}
 <section>
   <div class="wrap">
     <div class="eyebrow">Notion Structure</div>
-    <h2>DB 13종, 스크립트 하나로</h2>
-    <p class="lead">python3 setup/create_databases.py 한 번이면 relation·rollup·formula·뷰·대시보드까지 전부 생성됩니다.</p>
+    <h2>장부 13권, 스크립트 하나로</h2>
+    <p class="lead">설치 명령 한 번이면 서로 연결된 데이터베이스 13개와 운영 대시보드가 자동으로 만들어집니다. 직접 만들 것은 없습니다.</p>
     <div class="grid g4">
-      <div class="cell"><div class="no">01</div><h3>브랜드</h3><p>홀세일율·입점 상태·담당 MD</p></div>
-      <div class="cell"><div class="no">02</div><h3>스타일(드롭)</h3><p>발매일·룩북·드롭 캘린더</p></div>
-      <div class="cell"><div class="no">03</div><h3>상품(SKU)</h3><p>사이즈·컬러 단위 재고, 재발주점</p></div>
-      <div class="cell"><div class="no">04</div><h3>재고이동</h3><p>사입·폐기·실사조정 원장</p></div>
-      <div class="cell"><div class="no">05</div><h3>발주(PO)</h3><p>입고액 자동 대사·미입고 잔액</p></div>
-      <div class="cell"><div class="no">06</div><h3>매출 대장</h3><p>판매 라인, 원가 스냅샷·마진</p></div>
-      <div class="cell"><div class="no">07</div><h3>주문(자사몰)</h3><p>헤더/라인 분리, 상태 보드</p></div>
-      <div class="cell"><div class="no">08</div><h3>정산</h3><p>PG·카드 수수료, 실입금 차이</p></div>
+      <div class="cell"><div class="no">01</div><h3>브랜드</h3><p>납품가율·입점 상태·담당</p></div>
+      <div class="cell"><div class="no">02</div><h3>스타일(드롭)</h3><p>발매일·룩북·발매 캘린더</p></div>
+      <div class="cell"><div class="no">03</div><h3>상품(SKU)</h3><p>사이즈·컬러 단위 재고, 재발주 기준</p></div>
+      <div class="cell"><div class="no">04</div><h3>재고이동</h3><p>입고·폐기·실사 — 재고의 모든 흔적</p></div>
+      <div class="cell"><div class="no">05</div><h3>발주(PO)</h3><p>입고액 자동 대조·안 온 금액</p></div>
+      <div class="cell"><div class="no">06</div><h3>매출 대장</h3><p>판매 한 줄 한 줄, 원가·마진</p></div>
+      <div class="cell"><div class="no">07</div><h3>주문(자사몰)</h3><p>주문서·품목 분리, 처리 보드</p></div>
+      <div class="cell"><div class="no">08</div><h3>정산</h3><p>카드·PG 수수료, 실입금 차이</p></div>
       <div class="cell"><div class="no">09</div><h3>고객</h3><p>VIP 등급, 누적구매 자동 집계</p></div>
-      <div class="cell"><div class="no">10</div><h3>거래처</h3><p>미지급금 자동 rollup</p></div>
-      <div class="cell"><div class="no">11</div><h3>일정</h3><p>드롭·사입·세무, 담당 배정</p></div>
-      <div class="cell"><div class="no">12</div><h3>회의록 +대시보드</h3><p>액션아이템 연결, 운영 대시보드</p></div>
+      <div class="cell"><div class="no">10</div><h3>거래처</h3><p>줘야 할 돈 자동 합산</p></div>
+      <div class="cell"><div class="no">11</div><h3>일정</h3><p>발매·사입·세무, 담당 배정</p></div>
+      <div class="cell"><div class="no">12</div><h3>회의록 +대시보드</h3><p>할 일 연결, 운영 대시보드</p></div>
     </div>
   </div>
 </section>
@@ -152,35 +172,36 @@ footer p{color:var(--steel);font-size:13.5px}
   <div class="wrap">
     <div class="eyebrow">Ledger Discipline</div>
     <h2>템플릿이 아니라 <span class="accent">규율</span>입니다</h2>
-    <p class="lead">예쁜 장부는 많습니다. 이 킷의 가치는 숫자가 틀어지는 경로를 코드로 막는 데 있습니다.</p>
+    <p class="lead">예쁜 장부는 많습니다. 이 킷의 가치는 숫자가 틀어지는 길목을 미리 막아두는 데 있습니다.</p>
     <ul class="rules" style="margin-top:34px">
-      <li><b>Append-only 원장</b><span>기존 행 수정 금지. 정정·반품·교환 전부 새 행 — 숫자의 근거가 사라지지 않습니다.</span></li>
-      <li><b>원가 스냅샷</b><span>판매 시점 사입가를 행에 복사. 다음 시즌 재사입으로 사입가가 올라도 지난달 마진이 바뀌지 않습니다.</span></li>
-      <li><b>멱등키</b><span>Discord 메시지 ID·CSV 해시가 키. 재전송·재업로드에도 이중 기록이 생기지 않습니다.</span></li>
-      <li><b>자동 대사</b><span>발주↔입고, 주문 헤더↔라인 합계, 정산 실입금↔장부 — 어긋나는 순간 formula가 드러냅니다.</span></li>
-      <li><b>재고 직접 수정 금지</b><span>실사에서 1개가 비면? 수량을 고치는 게 아니라 "실사조정 −1" 행을 남깁니다.</span></li>
+      <li><b>지우개 없는 장부</b> <span class="tech">(append-only)</span><span>과거 기록은 절대 고치지 않습니다. 정정·반품·교환 전부 새 줄 — 숫자의 근거가 사라지지 않습니다.</span></li>
+      <li><b>그때 원가로 그때 마진</b> <span class="tech">(원가 스냅샷)</span><span>판 순간의 사입가를 함께 적어둡니다. 다음 시즌에 사입가가 올라도 지난달 마진이 바뀌지 않습니다.</span></li>
+      <li><b>실수로 두 번 보내도 안전</b> <span class="tech">(멱등키)</span><span>같은 메시지, 같은 파일이 두 번 처리돼도 기록은 한 번만 남습니다.</span></li>
+      <li><b>안 맞으면 바로 보입니다</b> <span class="tech">(자동 대조)</span><span>발주와 입고, 주문과 품목 합계, 장부와 실입금 — 어긋나는 순간 자동으로 표시됩니다.</span></li>
+      <li><b>재고는 고치지 않고 흔적으로</b> <span class="tech">(실사조정)</span><span>실사에서 1개가 비면 숫자를 고치는 게 아니라 "실사조정 −1" 한 줄을 남깁니다.</span></li>
     </ul>
   </div>
 </section>
 
-<section>
+<section id="start">
   <div class="wrap">
     <div class="eyebrow">Get Started</div>
     <h2>10분 설치</h2>
+    <p class="lead">개발을 몰라도 됩니다 — 아래 네 줄을 순서대로 붙여넣으면 끝. 막히는 단계가 있으면 저장소의 설치 가이드가 하나씩 안내합니다.</p>
     <div class="code">
-<span class="c"># 1. 클론</span>
+<span class="c"># 1. 내려받기</span>
 git clone https://github.com/kinkos1234/select-shop-kit && cd select-shop-kit
 
-<span class="c"># 2. Notion Integration 토큰 발급 (notion.so/my-integrations) 후 허브 페이지에 연결</span>
+<span class="c"># 2. Notion 연결 열쇠 발급 (notion.so/my-integrations) 후 허브 페이지에 연결</span>
 export NOTION_TOKEN=<span class="o">ntn_xxx</span>
 
-<span class="c"># 3. DB 13종 + 뷰 + 대시보드 자동 생성</span>
-python3 setup/create_databases.py <span class="o">&lt;parent_page_id&gt;</span> --staff "대표,직원A,직원B"
+<span class="c"># 3. 장부 13권 + 대시보드 자동 생성</span>
+python3 setup/create_databases.py <span class="o">&lt;페이지 ID&gt;</span> --staff "대표,직원A,직원B"
 
-<span class="c"># 4. Claude Code 스킬 설치</span>
+<span class="c"># 4. AI 스킬 설치</span>
 ./install.sh
 </div>
-    <div class="limit"><b>정직한 한계 —</b> Notion을 원장으로 쓰는 구조라 월 수백 건 규모까지가 적정선입니다. 월 주문 300건+, 반품 월 10건+, 월말 대사 2시간+ 이면 전용 DB 이전을 검토하세요. 판단 기준은 저장소의 architecture.md에 있습니다.</div>
+    <div class="limit"><b>정직한 한계 —</b> Notion을 장부로 쓰는 구조라 월 수백 건 규모까지가 적정선입니다. 월 주문 300건 이상, 반품 월 10건 이상이 되면 전용 데이터베이스 이전을 검토하세요. 판단 기준은 저장소 문서에 있습니다.</div>
   </div>
 </section>
 
