@@ -36,7 +36,13 @@ import urllib.parse
 import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import notion_sales as ns
+
+
+def _ns():
+    """notion_sales 지연 import — 의뢰인 머신(카페24 점검만)에는 Notion 설정이 없다.
+    setup/auth-url/exchange/doctor/parse-fixture 는 Notion 없이 동작해야 한다."""
+    import notion_sales
+    return notion_sales
 
 CONFIG_PATH = os.path.expanduser(os.environ.get('SHOP_CONFIG', '~/.claude/.comad/select-shop.json'))
 SCOPE = 'mall.read_order'
@@ -167,6 +173,7 @@ def map_order(o):
 
 def match_products(lines):
     """SKU 정확 일치만 매칭. 0건/복수 매칭은 unmatched — 추측 금지."""
+    ns = _ns()
     matched, unmatched = [], []
     for row in lines:
         cands = []
@@ -250,7 +257,9 @@ def cmd_setup():
     try:
         c = json.load(open(CONFIG_PATH))
     except FileNotFoundError:
-        sys.exit(f'설정 파일이 없습니다: {CONFIG_PATH}\n먼저 setup/create_databases.py 로 킷을 설치해주세요.')
+        os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
+        c = {}
+        print(f'(새 설정 파일을 만듭니다: {CONFIG_PATH})\n')
     print('카페24 개발자센터(developers.cafe24.com)에서 앱을 만들고 아래 값을 입력하세요.')
     print('권한 스코프는 mall.read_order 하나면 됩니다.\n')
     cur = c.get('cafe24', {})
@@ -330,8 +339,19 @@ def cmd_doctor(days='7'):
     raw_path = f'cafe24-raw-{stamp}.json'
     json.dump({'orders': mask_pii(orders[:20])}, open(raw_path, 'w'), ensure_ascii=False, indent=2)
     print('3/3 매핑 리포트 생성 중...')
-    report = run_sync(orders, apply_mode=False)
-    report['note'] = '점검 전용 — Notion 에는 아무것도 기록하지 않았습니다.'
+    # run_sync(Notion 필요) 대신 순수 파싱 리포트 — 의뢰인 머신엔 Notion 이 없다
+    mapped = [map_order(o) for o in orders]
+    report = {
+        'orders_fetched': len(orders),
+        'lines_total': sum(len(m['lines']) for m in mapped),
+        'lines_with_sku': sum(1 for m in mapped for r in m['lines'] if r['sku']),
+        'lines_without_sku': sum(1 for m in mapped for r in m['lines'] if not r['sku']),
+        'cancel_candidates': sum(len(m['canceled_items']) for m in mapped),
+        'headers_sample': [m['header'] for m in mapped[:5]],
+        'status_values_seen': sorted({str(r['status']) for m in mapped
+                                      for r in m['lines'] + m['canceled_items']}),
+        'note': '점검 전용 — Notion 연결 없이 파싱만 했고, 아무것도 기록하지 않았습니다.',
+    }
     rep_path = f'cafe24-doctor-report-{stamp}.json'
     json.dump(report, open(rep_path, 'w'), ensure_ascii=False, indent=2)
     print(f"""
