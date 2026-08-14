@@ -275,7 +275,7 @@ def cmd_setup():
 MASK_KEYS = ('name', 'phone', 'cellphone', 'email', 'address', 'zipcode',
              'member_id', 'buyer', 'receiver', 'ip', 'personal')
 # 상품 계열 키는 마스킹 예외 — 매핑 검증(상품명·SKU 대조)에 필요하다
-PRESERVE_KEYS = ('product', 'item', 'option', 'brand', 'sku', 'code', 'shop')
+PRESERVE_KEYS = ('product', 'item', 'option', 'brand', 'sku', 'shop')
 
 
 def mask_pii(obj):
