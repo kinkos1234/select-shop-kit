@@ -16,6 +16,7 @@
       radius 4px(버튼·꼬리)/8px(카드·사진·코드) 2단.
    4. 라이팅: 존댓말 서술체 · 사장님 언어 우선(전문용어는 보조 표기) · 눈썹 영어
       대문자 트래킹 · 카드 목록 명사형, 문단 서술형 · 숫자 천단위 콤마+원.
+      정렬은 전부 좌측 — 우측/가운데 정렬 텍스트 금지 (시선 동선 이탈, 2026-08-14 사용자 지적).
    5. 색: 오렌지 액센트 화면당 1곳. 사진 속 오렌지 1점과 UI 액센트가 경쟁하면 UI 가 양보.
    6. 사진: 화보 3종(hero/rack/detail) — 아이보리 지면·뮤트 팔레트·세이프티 오렌지
       1점·동일 그레이드(warm Portra). 새 사진은 같은 아트디렉션으로만 추가.
@@ -91,7 +92,7 @@ h1{font-size:clamp(42px,6.4vw,76px);font-weight:800;letter-spacing:-.04em;line-h
 /* full-bleed band */
 .band{border-top:1px solid var(--hairline)}
 .band img{width:100%;max-height:560px;object-fit:cover}
-.band-cap{text-align:right;font-size:12px;color:var(--warm);letter-spacing:.06em;padding:var(--s8) var(--s24) 0}
+.band-cap{font-size:12px;color:var(--warm);letter-spacing:.06em;padding:var(--s8) 0 0}
 /* flow */
 .flow{display:flex;flex-direction:column;gap:var(--s16);margin-top:var(--s56)}
 .step{display:grid;grid-template-columns:210px 1fr;gap:var(--s24);padding:var(--s24) 0;border-bottom:1px solid var(--hairline)}
@@ -101,7 +102,7 @@ h1{font-size:clamp(42px,6.4vw,76px);font-weight:800;letter-spacing:-.04em;line-h
 /* diagram */
 .diagram{padding:var(--s24) 0;margin-top:var(--s40)}
 .diagram svg{width:100%;height:auto;display:block}
-.diagram-cap{font-size:13px;color:var(--warm);margin-top:var(--s16);text-align:center}
+.diagram-cap{font-size:13px;color:var(--warm);margin-top:var(--s16)}
 /* ledger 2col */
 .ledger{display:grid;grid-template-columns:1.1fr .9fr;gap:var(--s56);align-items:start;margin-top:var(--s32)}
 .rules li{list-style:none;padding:var(--s16) 0;border-bottom:1px solid var(--hairline);font-size:16px}
@@ -193,7 +194,7 @@ footer p{color:var(--warm);font-size:13.5px}
 
 <div class="band">
   <img src="assets/rack.jpg" alt="아이보리 벽 앞 블랙 스틸 행거에 걸린 뮤트 톤 스트릿웨어 — 오렌지 택 포인트" width="1536" height="1024" loading="lazy">
-  <div class="band-cap">NEW STOCK — 사입 검수부터 장부는 자동으로 따라옵니다</div>
+  <div class="wrap"><div class="band-cap">NEW STOCK — 사입 검수부터 장부는 자동으로 따라옵니다</div></div>
 </div>
 
 <section>
