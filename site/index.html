@@ -17,6 +17,10 @@
       보조 표기) · 눈썹은 영어 대문자, 본문은 한국어 · 카드 목록은 명사형, 문단은
       서술형 · 숫자는 천단위 콤마+원.
    5. 색: 오렌지 액센트는 화면(섹션)당 1곳 원칙. 배경은 ink, 카드면은 graphite.
+   6. 장식: 글로우·도트그리드·워터마크 숫자는 불투명도 15% 이하 + pointer-events:none.
+      섹션당 장식 1종. 장식 지오메트리(position 오프셋·패턴 격자)는 스페이싱 스케일 예외.
+   7. 아이콘: 24 viewBox 라인 아이콘, 1.5px 스트로크, round cap. 기본 steel,
+      아이콘당 오렌지 포인트 1개까지.
 ──────────────────────────────────────────────────────────── */
 :root{
   --ink:#0A0A0B; --bone:#F2EFE8; --orange:#FF4D00; --steel:#8A8F98; --graphite:#1C1D1F;
@@ -35,8 +39,21 @@ section{padding:var(--s112) 0;border-top:1px solid var(--hair)}
 h2{font-size:clamp(30px,5vw,46px);font-weight:800;letter-spacing:-.03em;line-height:1.15;margin:var(--s16) 0 var(--s16)}
 .lead{color:var(--steel);font-size:17px;max-width:640px}
 .accent{color:var(--orange)}
-/* hero */
-header{padding:var(--s112) 0}
+/* hero ambient */
+header{padding:var(--s112) 0;position:relative;overflow:hidden}
+header .wrap{position:relative}
+.glow{position:absolute;top:-180px;left:-120px;width:640px;height:640px;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(255,77,0,.13),transparent 70%);pointer-events:none}
+.dots{position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(rgba(138,143,152,.13) 1px,transparent 1px);
+  background-size:24px 24px;
+  -webkit-mask-image:radial-gradient(ellipse 75% 55% at 28% 18%,#000 0%,transparent 72%);
+  mask-image:radial-gradient(ellipse 75% 55% at 28% 18%,#000 0%,transparent 72%)}
+/* section ornament */
+section{position:relative;overflow:hidden}
+.secno{position:absolute;top:52px;right:20px;font-size:clamp(72px,11vw,140px);font-weight:800;
+  line-height:1;letter-spacing:-.04em;color:transparent;
+  -webkit-text-stroke:1px rgba(138,143,152,.15);user-select:none;pointer-events:none}
 .logo{font-size:15px;font-weight:800;letter-spacing:.02em}
 .logo .cut{color:var(--orange)}
 .hero-tag{margin-top:var(--s56);font-size:15px;font-weight:600;color:var(--steel);letter-spacing:.01em}
@@ -50,14 +67,16 @@ h1{font-size:clamp(44px,8.5vw,96px);font-weight:800;letter-spacing:-.04em;line-h
 .btn-primary:hover{background:#fff}
 .btn-ghost:hover{border-color:var(--steel)}
 /* chat demo */
-.chat{background:var(--graphite);border:1px solid var(--hair);border-radius:8px;padding:var(--s24);max-width:660px;margin-top:var(--s56)}
+.chat{background:linear-gradient(180deg,#1E1F22,#161719);border:1px solid var(--hair);border-radius:8px;padding:var(--s24);max-width:660px;margin-top:var(--s56);position:relative}
+.chat::before{content:"";position:absolute;top:0;left:8%;right:8%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(242,239,232,.16),transparent);pointer-events:none}
 .chat .row{display:flex;margin:var(--s8) 0}
 .chat .me{margin-left:auto;background:var(--bone);color:var(--ink);padding:var(--s8) var(--s16);border-radius:8px 8px 4px 8px;font-size:15px;font-weight:600;max-width:85%}
 .chat .bot{background:#131316;border:1px solid var(--hair);padding:var(--s8) var(--s16);border-radius:8px 8px 8px 4px;font-size:14px;color:#C9C5BC;max-width:88%;white-space:pre-line}
 .chat .bot b{color:var(--bone)}
 .chat-cap{font-size:13.5px;color:var(--steel);margin-top:var(--s16)}
 /* diagram card */
-.diagram{background:var(--graphite);border:1px solid var(--hair);border-radius:8px;padding:var(--s40) var(--s32);margin-top:var(--s56)}
+.diagram{padding:var(--s24) 0;margin-top:var(--s40)}
 .diagram svg{width:100%;height:auto;display:block}
 .diagram-cap{font-size:13px;color:var(--steel);margin-top:var(--s16);text-align:center}
 /* grid cards */
@@ -66,6 +85,8 @@ h1{font-size:clamp(44px,8.5vw,96px);font-weight:800;letter-spacing:-.04em;line-h
 .g4{grid-template-columns:repeat(4,1fr)}
 .cell{background:var(--ink);padding:var(--s24)}
 .cell .no{font-size:13px;font-weight:700;color:var(--orange);letter-spacing:.08em;font-variant-numeric:tabular-nums}
+.cell .ico{margin-top:var(--s16);height:28px}
+.cell .ico svg{width:28px;height:28px;display:block}
 .cell h3{font-size:17px;font-weight:700;margin:var(--s8) 0 var(--s8);letter-spacing:-.01em}
 .cell p{font-size:13.5px;color:var(--steel);line-height:1.55}
 .cell p b{color:var(--bone);font-weight:600}
@@ -91,17 +112,20 @@ footer{padding:var(--s80) 0;border-top:1px solid var(--hair)}
 footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--s16)}
 footer p{color:var(--steel);font-size:13.5px}
 @media (max-width:760px){
+  .secno{display:none}
   .g3,.g4{grid-template-columns:1fr 1fr}
   .step{grid-template-columns:1fr;gap:var(--s8)}
   section{padding:var(--s80) 0}
   header{padding:var(--s80) 0}
 }
-@media (max-width:480px){ .g3,.g4{grid-template-columns:1fr} .diagram{padding:var(--s16) var(--s8)} }
+@media (max-width:480px){ .g3,.g4{grid-template-columns:1fr} .diagram{padding:var(--s8) 0} }
 </style>
 </head>
 <body>
 
 <header>
+  <div class="glow"></div>
+  <div class="dots"></div>
   <div class="wrap">
     <div class="logo">OFF<span class="cut">C</span>UT · SELECT-SHOP-KIT</div>
     <div class="hero-tag">1~3인 편집샵·옷가게를 위한 무료 AI 운영 도구</div>
@@ -124,18 +148,20 @@ footer p{color:var(--steel);font-size:13.5px}
 </header>
 
 <section id="benefit">
+  <div class="secno">01</div>
   <div class="wrap">
     <div class="eyebrow">Before → After</div>
     <h2>저녁마다 하던 정리가 사라집니다</h2>
     <div class="grid g3">
-      <div class="cell"><div class="no">01</div><h3>"마감하고 엑셀 정리 30분…"</h3><p>→ <b>팔릴 때 한 줄</b>이면 끝. 매출·재고·마진이 그 자리에서 장부에 정리됩니다. 반품·교환도 말로 하면 됩니다.</p></div>
-      <div class="cell"><div class="no">02</div><h3>"발주한 거 얼마나 안 왔더라?"</h3><p>→ <b>매일 아침 AI가 먼저 보고</b>합니다. 늦고 있는 발주, 떨어져가는 재고, 거래처에 줘야 할 돈, 카드사에서 덜 들어온 정산까지.</p></div>
-      <div class="cell"><div class="no">03</div><h3>"이번 달 얼마 남았지?"</h3><p>→ 채팅으로 물어보면 <b>반품 빼고 원가 따져서</b> 바로 답합니다. 월간 리포트엔 부가세 예상액까지.</p></div>
+      <div class="cell"><div class="no">01</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#8A8F98" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21l-2-1.5L6 21V3z"/><path d="M9 8h6M9 12h6"/><path d="M9 16h3" stroke="#FF4D00"/></svg></div><h3>"마감하고 엑셀 정리 30분…"</h3><p>→ <b>팔릴 때 한 줄</b>이면 끝. 매출·재고·마진이 그 자리에서 장부에 정리됩니다. 반품·교환도 말로 하면 됩니다.</p></div>
+      <div class="cell"><div class="no">02</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#8A8F98" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v10H3zM14 10h4l3 3v4h-7"/><circle cx="7" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/><path d="M6 10h5" stroke="#FF4D00"/></svg></div><h3>"발주한 거 얼마나 안 왔더라?"</h3><p>→ <b>매일 아침 AI가 먼저 보고</b>합니다. 늦고 있는 발주, 떨어져가는 재고, 거래처에 줘야 할 돈, 카드사에서 덜 들어온 정산까지.</p></div>
+      <div class="cell"><div class="no">03</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#8A8F98" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7"/><path d="M4 7l6-3 6 4 4-2" stroke="#FF4D00"/><circle cx="20" cy="6" r="1.4" stroke="#FF4D00"/></svg></div><h3>"이번 달 얼마 남았지?"</h3><p>→ 채팅으로 물어보면 <b>반품 빼고 원가 따져서</b> 바로 답합니다. 월간 리포트엔 부가세 예상액까지.</p></div>
     </div>
   </div>
 </section>
 
 <section>
+  <div class="secno">02</div>
   <div class="wrap">
     <div class="eyebrow">Workflows</div>
     <h2>실제로 이런 일이 자동화됩니다</h2>
@@ -151,6 +177,7 @@ footer p{color:var(--steel);font-size:13.5px}
 </section>
 
 <section id="how">
+  <div class="secno">03</div>
   <div class="wrap">
     <div class="eyebrow">How It Works</div>
     <h2>새로 배울 프로그램이 없습니다</h2>
@@ -180,6 +207,7 @@ footer p{color:var(--steel);font-size:13.5px}
 </section>
 
 <section>
+  <div class="secno">04</div>
   <div class="wrap">
     <div class="eyebrow">Notion Structure</div>
     <h2>장부 13권, 스크립트 하나로</h2>
@@ -202,6 +230,7 @@ footer p{color:var(--steel);font-size:13.5px}
 </section>
 
 <section>
+  <div class="secno">05</div>
   <div class="wrap">
     <div class="eyebrow">Ledger Discipline</div>
     <h2>템플릿이 아니라 <span class="accent">규율</span>입니다</h2>
@@ -217,6 +246,7 @@ footer p{color:var(--steel);font-size:13.5px}
 </section>
 
 <section id="start">
+  <div class="secno">06</div>
   <div class="wrap">
     <div class="eyebrow">Get Started</div>
     <h2>10분 설치</h2>
