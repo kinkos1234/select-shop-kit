@@ -274,13 +274,19 @@ def cmd_setup():
 
 MASK_KEYS = ('name', 'phone', 'cellphone', 'email', 'address', 'zipcode',
              'member_id', 'buyer', 'receiver', 'ip', 'personal')
+# 상품 계열 키는 마스킹 예외 — 매핑 검증(상품명·SKU 대조)에 필요하다
+PRESERVE_KEYS = ('product', 'item', 'option', 'brand', 'sku', 'code', 'shop')
 
 
 def mask_pii(obj):
-    """고객 개인정보로 보이는 값을 마스킹 — 구조(키)는 보존해 매핑 검증엔 지장 없게."""
+    """고객 개인정보로 보이는 값을 마스킹 — 구조(키)와 상품 정보는 보존해 매핑 검증엔 지장 없게."""
     if isinstance(obj, dict):
-        return {k: ('◼︎masked' if any(m in k.lower() for m in MASK_KEYS) and not isinstance(v, (dict, list))
-                    else mask_pii(v)) for k, v in obj.items()}
+        def one(k, v):
+            kl = k.lower()
+            if isinstance(v, (dict, list)) or any(w in kl for w in PRESERVE_KEYS):
+                return mask_pii(v)
+            return '◼︎masked' if any(m in kl for m in MASK_KEYS) else mask_pii(v)
+        return {k: one(k, v) for k, v in obj.items()}
     if isinstance(obj, list):
         return [mask_pii(x) for x in obj]
     return obj
