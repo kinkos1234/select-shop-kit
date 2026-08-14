@@ -99,6 +99,17 @@ h1{font-size:clamp(42px,6.4vw,76px);font-weight:800;letter-spacing:-.04em;line-h
 .step .in{font-weight:700;font-size:15.5px}
 .step .out{color:var(--warm);font-size:14.5px}
 .step .out b{color:var(--ink);font-weight:600}
+/* proactive briefing */
+.proactive{display:grid;grid-template-columns:.9fr 1.1fr;gap:var(--s56);align-items:start;margin-top:var(--s32)}
+.brief{background:var(--card);border:1px solid var(--hairline);border-radius:8px;padding:var(--s24)}
+.brief-head{display:flex;gap:var(--s8);align-items:baseline;border-bottom:1px solid var(--hairline);padding-bottom:var(--s16);margin-bottom:var(--s16)}
+.brief-head b{font-size:14px}
+.brief-head span{font-size:12px;color:var(--warm)}
+.brief-body{font-size:14px;color:#3E3B36;white-space:pre-line;line-height:1.75}
+.brief-body b{color:var(--ink);font-weight:600}
+.brief-body .warn{color:var(--orange);font-weight:600}
+.proactive-points li{list-style:none;padding:var(--s8) 0;font-size:15px;color:var(--warm)}
+.proactive-points b{color:var(--ink);font-weight:700}
 /* diagram */
 .diagram{padding:var(--s24) 0;margin-top:var(--s40)}
 .diagram svg{width:100%;height:auto;display:block}
@@ -126,6 +137,7 @@ footer p{color:var(--warm);font-size:13.5px}
 @media (max-width:860px){
   .hero{grid-template-columns:1fr;gap:var(--s40);align-items:start}
   .ledger{grid-template-columns:1fr}
+  .proactive{grid-template-columns:1fr;gap:var(--s32)}
 }
 @media (max-width:760px){
   .secno{display:none}
@@ -200,6 +212,44 @@ footer p{color:var(--warm);font-size:13.5px}
 <section>
   <div class="secno">02</div>
   <div class="wrap">
+    <div class="eyebrow">Proactive</div>
+    <h2>묻기 전에, 먼저 보고합니다</h2>
+    <p class="lead">장부는 쌓이기만 하면 잊힙니다. 이 킷은 매일 아침 시스템이 먼저 말을 겁니다 — 사람이 할 일은 예외에 답하는 것뿐.</p>
+    <div class="proactive">
+      <div>
+        <ul class="proactive-points">
+          <li><b>매일 아침 브리핑</b> — 오늘 일정 · 늦는 발주 · 재고 경고 · 줘야 할 돈 · 정산 차이 · 어제 매출을 자동으로 push</li>
+          <li><b>저녁 마감 확인</b> — 오늘 매출을 요약하고, 빠뜨린 기록이 없는지 물어봅니다</li>
+          <li><b>답장이 곧 기록</b> — "아 반품 하나 있었다" 한 줄로 답하면 그대로 장부에 들어갑니다</li>
+        </ul>
+      </div>
+      <div>
+        <div class="brief">
+          <div class="brief-head"><b>OFFCUT 비서</b><span>오전 8:47 · 자동 발신</span></div>
+          <div class="brief-body">[아침 브리핑] 8월 14일 (금)
+
+오늘 일정
+- GRVTY FW 초도 입고 (사입/발주 · 김도현)
+
+발주 진행 2건
+- PO-2607-02 [부분입고] 미입고 180,000원 — <span class="warn">25일 지연</span>
+- PO-2608-02 [발주확정] 미입고 948,000원 · 입고예정 08-14
+
+재고 경고 — 품절임박 1종: PC 산타페 쇼츠 베이지 L
+미지급 — 반달아카이브 스튜디오 1,845,000원
+정산 차이 — 7월 PG 정산 −62,100원
+
+어제 매출: <b>2건 / 102,900원</b> (마진 22,100원)</div>
+        </div>
+        <div class="photo-cap">매일 아침, 사람이 시키지 않아도 채널에 도착하는 실제 브리핑입니다.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="secno">03</div>
+  <div class="wrap">
     <div class="eyebrow">Workflows</div>
     <h2>실제로 이런 일이 자동화됩니다</h2>
     <div class="flow">
@@ -214,7 +264,7 @@ footer p{color:var(--warm);font-size:13.5px}
 </section>
 
 <section id="how">
-  <div class="secno">03</div>
+  <div class="secno">04</div>
   <div class="wrap">
     <div class="eyebrow">How It Works</div>
     <h2>새로 배울 프로그램이 없습니다</h2>
@@ -244,7 +294,7 @@ footer p{color:var(--warm);font-size:13.5px}
 </section>
 
 <section>
-  <div class="secno">04</div>
+  <div class="secno">05</div>
   <div class="wrap">
     <div class="eyebrow">Notion Structure</div>
     <h2>장부 13권, 스크립트 하나로</h2>
@@ -267,7 +317,7 @@ footer p{color:var(--warm);font-size:13.5px}
 </section>
 
 <section>
-  <div class="secno">05</div>
+  <div class="secno">06</div>
   <div class="wrap">
     <div class="eyebrow">Ledger Discipline</div>
     <h2>템플릿이 아니라 <span class="accent">규율</span>입니다</h2>
@@ -289,7 +339,7 @@ footer p{color:var(--warm);font-size:13.5px}
 </section>
 
 <section id="start">
-  <div class="secno">06</div>
+  <div class="secno">07</div>
   <div class="wrap">
     <div class="eyebrow">Get Started</div>
     <h2>10분 설치</h2>
