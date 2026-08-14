@@ -6,84 +6,97 @@
 <title>select-shop-kit — 옷가게 장부, 채팅 한 줄로</title>
 <meta name="description" content="카톡 보내듯 한 줄만 남기면 AI가 매출·재고·마진을 장부에 정리하는, 1~3인 편집샵·옷가게를 위한 무료 운영 도구.">
 <style>
+/* ── OFFCUT 디자인 계약 (2026-08-14 자가검열 후 명문화) ─────────────────
+   1. 스페이싱: 8pt 스케일만 사용 — 4/8/16/24/32/40/56/80/112 (--s* 토큰).
+      이 목록에 없는 px 여백을 새로 만들지 않는다.
+   2. 폰트 굵기: 400 본문 · 600 인라인 강조 · 700 컴포넌트 제목 · 800 페이지/섹션 제목.
+      500 등 중간 굵기 금지. 위계는 굵기보다 크기·색으로 먼저.
+   3. Stroke: 보더는 1px var(--hair) 단일. 액센트 보더(3px orange)는 페이지에 1곳.
+      radius 는 4px(버튼·꼬리) / 8px(카드·코드·말풍선) 2단만.
+   4. 라이팅: 존댓말 서술체("-습니다") · 사장님 언어 우선(전문용어는 쉬운 제목 뒤
+      보조 표기) · 눈썹은 영어 대문자, 본문은 한국어 · 카드 목록은 명사형, 문단은
+      서술형 · 숫자는 천단위 콤마+원.
+   5. 색: 오렌지 액센트는 화면(섹션)당 1곳 원칙. 배경은 ink, 카드면은 graphite.
+──────────────────────────────────────────────────────────── */
 :root{
   --ink:#0A0A0B; --bone:#F2EFE8; --orange:#FF4D00; --steel:#8A8F98; --graphite:#1C1D1F;
   --hair:#26272B;
+  --s4:4px; --s8:8px; --s16:16px; --s24:24px; --s32:32px; --s40:40px; --s56:56px; --s80:80px; --s112:112px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{background:var(--ink);color:var(--bone);
   font-family:"Pretendard Variable",Pretendard,-apple-system,"Helvetica Neue","Apple SD Gothic Neo","Segoe UI",sans-serif;
   line-height:1.6;-webkit-font-smoothing:antialiased;word-break:keep-all}
-.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 var(--s24)}
 a{color:inherit}
 .eyebrow{font-size:13px;font-weight:600;letter-spacing:.35em;text-transform:uppercase;color:var(--steel)}
-section{padding:110px 0;border-top:1px solid var(--hair)}
-h2{font-size:clamp(30px,5vw,46px);font-weight:800;letter-spacing:-.03em;line-height:1.15;margin:14px 0 18px}
+section{padding:var(--s112) 0;border-top:1px solid var(--hair)}
+h2{font-size:clamp(30px,5vw,46px);font-weight:800;letter-spacing:-.03em;line-height:1.15;margin:var(--s16) 0 var(--s16)}
 .lead{color:var(--steel);font-size:17px;max-width:640px}
 .accent{color:var(--orange)}
 /* hero */
-header{padding:110px 0 110px}
+header{padding:var(--s112) 0}
 .logo{font-size:15px;font-weight:800;letter-spacing:.02em}
 .logo .cut{color:var(--orange)}
-.hero-tag{margin-top:56px;font-size:15px;font-weight:600;color:var(--steel);letter-spacing:.01em}
-h1{font-size:clamp(44px,8.5vw,96px);font-weight:800;letter-spacing:-.04em;line-height:1.02;margin:14px 0 24px}
+.hero-tag{margin-top:var(--s56);font-size:15px;font-weight:600;color:var(--steel);letter-spacing:.01em}
+h1{font-size:clamp(44px,8.5vw,96px);font-weight:800;letter-spacing:-.04em;line-height:1.02;margin:var(--s16) 0 var(--s24)}
 .hero-sub{font-size:19px;color:var(--steel);max-width:640px}
 .hero-sub b{color:var(--bone);font-weight:600}
-.cta{display:flex;gap:14px;margin-top:42px;flex-wrap:wrap}
-.btn{display:inline-block;padding:14px 26px;font-size:15px;font-weight:700;text-decoration:none;border-radius:3px}
+.cta{display:flex;gap:var(--s16);margin-top:var(--s40);flex-wrap:wrap}
+.btn{display:inline-block;padding:var(--s16) var(--s24);font-size:15px;font-weight:700;text-decoration:none;border-radius:4px}
 .btn-primary{background:var(--bone);color:var(--ink)}
 .btn-ghost{border:1px solid var(--hair);color:var(--bone)}
 .btn-primary:hover{background:#fff}
 .btn-ghost:hover{border-color:var(--steel)}
 /* chat demo */
-.chat{background:var(--graphite);border:1px solid var(--hair);border-radius:8px;padding:26px;max-width:660px;margin-top:56px}
-.chat .row{display:flex;margin:12px 0}
-.chat .me{margin-left:auto;background:var(--bone);color:var(--ink);padding:10px 16px;border-radius:14px 14px 3px 14px;font-size:15px;font-weight:600;max-width:85%}
-.chat .bot{background:#131316;border:1px solid var(--hair);padding:12px 16px;border-radius:14px 14px 14px 3px;font-size:14px;color:#C9C5BC;max-width:88%;white-space:pre-line}
+.chat{background:var(--graphite);border:1px solid var(--hair);border-radius:8px;padding:var(--s24);max-width:660px;margin-top:var(--s56)}
+.chat .row{display:flex;margin:var(--s8) 0}
+.chat .me{margin-left:auto;background:var(--bone);color:var(--ink);padding:var(--s8) var(--s16);border-radius:8px 8px 4px 8px;font-size:15px;font-weight:600;max-width:85%}
+.chat .bot{background:#131316;border:1px solid var(--hair);padding:var(--s8) var(--s16);border-radius:8px 8px 8px 4px;font-size:14px;color:#C9C5BC;max-width:88%;white-space:pre-line}
 .chat .bot b{color:var(--bone)}
-.chat-cap{font-size:13.5px;color:var(--steel);margin-top:14px}
+.chat-cap{font-size:13.5px;color:var(--steel);margin-top:var(--s16)}
 /* diagram card */
-.diagram{background:var(--graphite);border:1px solid var(--hair);border-radius:8px;padding:38px 34px;margin-top:50px}
+.diagram{background:var(--graphite);border:1px solid var(--hair);border-radius:8px;padding:var(--s40) var(--s32);margin-top:var(--s56)}
 .diagram svg{width:100%;height:auto;display:block}
-.diagram-cap{font-size:13px;color:var(--steel);margin-top:18px;text-align:center}
+.diagram-cap{font-size:13px;color:var(--steel);margin-top:var(--s16);text-align:center}
 /* grid cards */
-.grid{display:grid;gap:1px;background:var(--hair);border:1px solid var(--hair);margin-top:50px}
+.grid{display:grid;gap:1px;background:var(--hair);border:1px solid var(--hair);margin-top:var(--s56)}
 .g3{grid-template-columns:repeat(3,1fr)}
 .g4{grid-template-columns:repeat(4,1fr)}
-.cell{background:var(--ink);padding:26px 22px}
+.cell{background:var(--ink);padding:var(--s24)}
 .cell .no{font-size:13px;font-weight:700;color:var(--orange);letter-spacing:.08em;font-variant-numeric:tabular-nums}
-.cell h3{font-size:17px;font-weight:700;margin:10px 0 8px;letter-spacing:-.01em}
+.cell h3{font-size:17px;font-weight:700;margin:var(--s8) 0 var(--s8);letter-spacing:-.01em}
 .cell p{font-size:13.5px;color:var(--steel);line-height:1.55}
 .cell p b{color:var(--bone);font-weight:600}
 /* flow */
-.flow{display:flex;flex-direction:column;gap:14px;margin-top:50px}
-.step{display:grid;grid-template-columns:210px 1fr;gap:24px;padding:22px 0;border-bottom:1px solid var(--hair)}
+.flow{display:flex;flex-direction:column;gap:var(--s16);margin-top:var(--s56)}
+.step{display:grid;grid-template-columns:210px 1fr;gap:var(--s24);padding:var(--s24) 0;border-bottom:1px solid var(--hair)}
 .step .in{font-weight:700;font-size:15.5px}
 .step .out{color:var(--steel);font-size:14.5px}
 .step .out b{color:var(--bone);font-weight:600}
 /* rules */
-.rules li{list-style:none;padding:16px 0;border-bottom:1px solid var(--hair);font-size:16px}
+.rules li{list-style:none;padding:var(--s16) 0;border-bottom:1px solid var(--hair);font-size:16px}
 .rules b{font-weight:700}
-.rules .tech{color:var(--steel);font-weight:500;font-size:13.5px}
-.rules span{color:var(--steel);font-size:14.5px;display:block;margin-top:4px}
+.rules .tech{color:var(--steel);font-weight:400;font-size:13.5px}
+.rules span{color:var(--steel);font-size:14.5px;display:block;margin-top:var(--s4)}
 /* install */
-.code{background:#111214;border:1px solid var(--hair);border-radius:6px;padding:22px 24px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;line-height:1.9;color:#C9C5BC;overflow-x:auto;margin-top:28px}
+.code{background:#111214;border:1px solid var(--hair);border-radius:8px;padding:var(--s24);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;line-height:1.9;color:#C9C5BC;overflow-x:auto;margin-top:var(--s24)}
 .code .c{color:#5B5F66}
 .code .o{color:var(--orange)}
 /* limits */
-.limit{border-left:3px solid var(--orange);padding:6px 0 6px 22px;margin-top:34px;color:var(--steel);font-size:15px}
+.limit{border-left:3px solid var(--orange);padding:var(--s8) 0 var(--s8) var(--s24);margin-top:var(--s32);color:var(--steel);font-size:15px}
 .limit b{color:var(--bone)}
-footer{padding:70px 0 90px;border-top:1px solid var(--hair)}
-footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+footer{padding:var(--s80) 0;border-top:1px solid var(--hair)}
+footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--s16)}
 footer p{color:var(--steel);font-size:13.5px}
 @media (max-width:760px){
   .g3,.g4{grid-template-columns:1fr 1fr}
-  .step{grid-template-columns:1fr;gap:8px}
-  section{padding:80px 0}
-  header{padding:80px 0}
+  .step{grid-template-columns:1fr;gap:var(--s8)}
+  section{padding:var(--s80) 0}
+  header{padding:var(--s80) 0}
 }
-@media (max-width:480px){ .g3,.g4{grid-template-columns:1fr} .diagram{padding:18px 12px} }
+@media (max-width:480px){ .g3,.g4{grid-template-columns:1fr} .diagram{padding:var(--s16) var(--s8)} }
 </style>
 </head>
 <body>
@@ -193,7 +206,7 @@ footer p{color:var(--steel);font-size:13.5px}
     <div class="eyebrow">Ledger Discipline</div>
     <h2>템플릿이 아니라 <span class="accent">규율</span>입니다</h2>
     <p class="lead">예쁜 장부는 많습니다. 이 킷의 가치는 숫자가 틀어지는 길목을 미리 막아두는 데 있습니다.</p>
-    <ul class="rules" style="margin-top:34px">
+    <ul class="rules" style="margin-top:var(--s32)">
       <li><b>지우개 없는 장부</b> <span class="tech">(append-only)</span><span>과거 기록은 절대 고치지 않습니다. 정정·반품·교환 전부 새 줄 — 숫자의 근거가 사라지지 않습니다.</span></li>
       <li><b>그때 원가로 그때 마진</b> <span class="tech">(원가 스냅샷)</span><span>판 순간의 사입가를 함께 적어둡니다. 다음 시즌에 사입가가 올라도 지난달 마진이 바뀌지 않습니다.</span></li>
       <li><b>실수로 두 번 보내도 안전</b> <span class="tech">(멱등키)</span><span>같은 메시지, 같은 파일이 두 번 처리돼도 기록은 한 번만 남습니다.</span></li>
