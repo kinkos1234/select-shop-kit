@@ -10,8 +10,10 @@
    0. 지면: paper #F2EFE8 단일. 텍스트 ink #0A0A0B / 보조 warm #6B6660.
       다크 캔버스는 코드블록·채팅 말풍선(사용자) 한정.
    1. 스페이싱: 8pt 스케일만 — 4/8/16/24/32/40/56/80/112 (--s* 토큰). 목록 밖 값 금지.
-   2. 폰트 굵기: 400 본문 · 600 인라인 강조 · 700 컴포넌트 제목 · 800 디스플레이.
-      위계는 굵기보다 크기·트래킹으로 먼저.
+   2. 폰트 굵기: 400 본문 · 600 인라인 강조/눈썹 · 700 제목·디스플레이. **800 폐기**
+      (2026-08-15 design-md 코퍼스 514종 대조 — 800+ 보유는 8%뿐, 700 이 정상 상한).
+      위계는 굵기가 아니라 크기·트래킹으로: 디스플레이는 -0.045em, h2 -0.035em.
+      40px 이상 텍스트에 양수 트래킹 금지(워터마크 포함).
    3. Stroke: 보더 1px var(--hairline) 단일. 액센트 보더(3px orange) 페이지 1곳.
       radius 4px(버튼·꼬리)/8px(카드·사진·코드) 2단.
    4. 라이팅: 존댓말 서술체 · 사장님 언어 우선(전문용어는 보조 표기) · 눈썹 영어
@@ -24,6 +26,10 @@
    7. 장식: 아웃라인 디스플레이 워터마크(OFFCUT·섹션 숫자)는 ink 10~14% 스트로크,
       pointer-events:none, 섹션당 1개. 글로우·그리드 패턴은 라이트 프로파일에서 금지.
    8. 아이콘: 24 viewBox 라인, 1.5px 스트로크 round cap, graphite 기본 + 오렌지 1점.
+   9. 기계 판정(2026-08-15): 수정 후 반드시
+      `~/.claude/skills/comad-taste/scripts/token-audit.sh <url>` PASS 확인.
+      웨이트 종수·디스플레이 트래킹·4px 격자·라운드 위계·액센트 계열 수를 코퍼스와 대조한다.
+      눈으로 보는 것은 기계가 못 재는 것(위계·신뢰감·차별성)에만 쓴다.
 ──────────────────────────────────────────────────────────────── */
 :root{
   --paper:#F2EFE8; --ink:#0A0A0B; --warm:#6B6660; --card:#FBFAF7;
@@ -38,28 +44,28 @@ body{background:var(--paper);color:var(--ink);
 .wrap{max-width:1120px;margin:0 auto;padding:0 var(--s24)}
 a{color:inherit}
 img{max-width:100%;height:auto;display:block}
-.eyebrow{font-size:13px;font-weight:600;letter-spacing:.35em;text-transform:uppercase;color:var(--warm)}
+.eyebrow{font-size:12.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--warm)}
 section{padding:var(--s112) 0;border-top:1px solid var(--hairline);position:relative;overflow:hidden}
-h2{font-size:clamp(30px,5vw,46px);font-weight:800;letter-spacing:-.03em;line-height:1.15;margin:var(--s16) 0 var(--s16)}
+h2{font-size:clamp(30px,5vw,46px);font-weight:700;letter-spacing:-.035em;line-height:1.15;margin:var(--s16) 0 var(--s16)}
 .lead{color:var(--warm);font-size:17px;max-width:640px}
 .accent{color:var(--orange)}
 /* top bar */
 .topbar{display:flex;justify-content:space-between;align-items:center;padding:var(--s24) 0}
-.logo{font-size:15px;font-weight:800;letter-spacing:.02em}
+.logo{font-size:15px;font-weight:700;letter-spacing:-.01em}
 .logo .cut{color:var(--orange)}
-.nav{display:flex;gap:var(--s24);font-size:12px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--warm)}
+.nav{display:flex;gap:var(--s24);font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--warm)}
 .nav a{text-decoration:none}
 .nav a:hover{color:var(--ink)}
 /* hero */
 header{position:relative;overflow:hidden}
 .watermark{position:absolute;top:var(--s16);left:50%;transform:translateX(-50%);
-  font-size:clamp(120px,22vw,320px);font-weight:800;letter-spacing:.02em;line-height:1;
-  color:transparent;-webkit-text-stroke:1px rgba(10,10,11,.12);white-space:nowrap;
+  font-size:clamp(120px,22vw,300px);font-weight:700;letter-spacing:-.045em;line-height:1;
+  color:transparent;-webkit-text-stroke:1px rgba(10,10,11,.085);white-space:nowrap;
   user-select:none;pointer-events:none}
 .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:var(--s56);align-items:center;
   padding:var(--s80) 0;position:relative}
 .hero-tag{font-size:15px;font-weight:600;color:var(--warm)}
-h1{font-size:clamp(42px,6.4vw,76px);font-weight:800;letter-spacing:-.04em;line-height:1.04;margin:var(--s16) 0 var(--s24)}
+h1{font-size:clamp(44px,6.8vw,82px);font-weight:700;letter-spacing:-.045em;line-height:1.04;margin:var(--s16) 0 var(--s24)}
 .hero-sub{font-size:18px;color:var(--warm);max-width:520px}
 .hero-sub b{color:var(--ink);font-weight:600}
 .cta{display:flex;gap:var(--s16);margin-top:var(--s40);flex-wrap:wrap}
@@ -128,8 +134,8 @@ h1{font-size:clamp(42px,6.4vw,76px);font-weight:800;letter-spacing:-.04em;line-h
 .limit{border-left:3px solid var(--orange);padding:var(--s8) 0 var(--s8) var(--s24);margin-top:var(--s32);color:var(--warm);font-size:15px}
 .limit b{color:var(--ink)}
 /* section numerals */
-.secno{position:absolute;top:52px;right:20px;font-size:clamp(72px,11vw,140px);font-weight:800;
-  line-height:1;letter-spacing:-.04em;color:transparent;
+.secno{position:absolute;top:52px;right:20px;font-size:clamp(72px,11vw,140px);font-weight:700;
+  line-height:1;letter-spacing:-.045em;color:transparent;
   -webkit-text-stroke:1px rgba(10,10,11,.10);user-select:none;pointer-events:none}
 footer{padding:var(--s80) 0;border-top:1px solid var(--hairline)}
 footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--s16)}
